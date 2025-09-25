@@ -1,0 +1,3145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>業界別求人紹介</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .tab-btn.active {
+      @apply text-white;
+    }
+    .sub-tab-btn.active {
+      @apply text-white;
+    }
+    .listed-prime {
+      @apply text-green-600 font-bold;
+    }
+    .listed-growth {
+      @apply text-purple-600 font-bold;
+    }
+    .listed-private {
+      @apply text-gray-500;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+  <div id="main-tabs" class="flex flex-wrap justify-center space-x-2 space-y-2 p-4 bg-white shadow">
+    <button class="tab-btn px-4 py-2 rounded-full active bg-red-500" data-main-category="it">IT系</button>
+    <button class="tab-btn px-4 py-2 rounded-full bg-yellow-500" data-main-category="service">サービス系</button>
+    <button class="tab-btn px-4 py-2 rounded-full bg-green-500" data-main-category="maker">メーカー系</button>
+    <button class="tab-btn px-4 py-2 rounded-full bg-blue-500" data-main-category="finance">金融系</button>
+    <button class="tab-btn px-4 py-2 rounded-full bg-indigo-500" data-main-category="construction">建設・施工系</button>
+    <button class="tab-btn px-4 py-2 rounded-full bg-pink-500" data-main-category="trading">商社系</button>
+    <button class="tab-btn px-4 py-2 rounded-full bg-teal-500" data-main-category="hr">人材系</button>
+    <button class="tab-btn px-4 py-2 rounded-full bg-orange-500" data-main-category="realestate">不動産</button>
+    <button class="tab-btn px-4 py-2 rounded-full bg-cyan-500" data-main-category="welfare">福祉・教育系</button>
+    <button class="tab-btn px-4 py-2 rounded-full bg-lime-500" data-main-category="logistics">物流系</button>
+  </div>
+  
+  <div id="sub-tabs-container" class="flex flex-wrap justify-center space-x-2 space-y-2 p-4 bg-gray-200 shadow mt-2"></div>
+
+  <div id="content" class="p-6 max-w-3xl mx-auto"></div>
+
+  <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-11/12 md:w-full max-w-3xl shadow-lg transform transition-all scale-95 md:scale-100 overflow-y-auto max-h-[90vh]">
+      <h2 id="modal-title" class="text-2xl font-bold mb-2 text-gray-800"></h2>
+      <p id="modal-kana" class="text-gray-600 text-sm mb-4"></p>
+      <div class="space-y-3 text-gray-700">
+        <p><span class="font-bold">【ポイント】</span> <span id="modal-points"></span></p>
+        <p><span class="font-bold">【上場区分】</span> <span id="modal-listed"></span></p>
+        <p><span class="font-bold">【資本金】</span> <span id="modal-capital"></span></p>
+        <p><span class="font-bold">【売上高】</span> <span id="modal-sales"></span></p>
+        <p><span class="font-bold">【従業員数】</span> <span id="modal-employees"></span></p>
+        <p><span class="font-bold">【PR】</span> <span id="modal-pr"></span></p>
+        <p><span class="font-bold">【事業内容】</span> <span id="modal-business"></span></p>
+        <p><span class="font-bold">【採用対象】</span> <span id="modal-recruit-faculties"></span></p>
+        <p><span class="font-bold">【仕事内容】</span> <span id="modal-job-description"></span></p>
+        <p><span class="font-bold">【福利厚生】</span> <span id="modal-benefits"></span></p>
+        <p><span class="font-bold">【初任給】</span> <span id="modal-salary"></span></p>
+        <p><span class="font-bold">【休日・休暇】</span> <span id="modal-holidays"></span></p>
+        <p class="mt-4"><span class="font-bold">【ホームページ】</span> <a id="modal-homepage" href="#" target="_blank" class="text-blue-600 underline hover:no-underline">企業ホームページへ</a></p>
+      </div>
+      <div class="mt-6 text-right space-x-2">
+        <button id="blog-receipt-btn" class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors">プログレッシブ</button>
+        <button onclick="closeModal()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">閉じる</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="blog-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-11/12 md:w-full max-w-3xl shadow-lg">
+      <h3 class="text-xl font-bold mb-4">ブログ用情報</h3>
+      <textarea id="blog-content" class="w-full h-64 border rounded p-2 text-sm bg-gray-100" readonly></textarea>
+      <div class="mt-4 text-right">
+        <button onclick="closeBlogModal()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const allCompanies = {
+      "it": {
+        "インターネットサービス": [
+         {
+  "name": "株式会社Donuts",
+  "kana": "ドーナツ",
+  "points": "多角的な事業展開",
+  "listed": "非公開",
+  "capital": "1億2,800万円",
+  "sales": "193億8,500万円（2023年3月期）",
+  "employees": "約500名",
+  "pr": "モバイルゲームやウェブメディア、SaaS事業など多岐にわたる事業を展開しており、常に新しい挑戦を続けています。",
+  "business": "モバイルゲーム事業、ウェブメディア事業（ライブ配信アプリ『ミクチャ』等）、SaaS事業",
+  "recruit_faculties": "短大生、文系学部生、理系学部生、文系院生、理系院生",
+  "job_description": "エンジニア、マーケティング、営業、デザイナー",
+  "benefits": "社会保険完備、交通費支給、家賃補助制度、ドリンク無料、ランチ補助制度",
+  "salary": "非公開",
+  "homepage": "https://www.donuts.ne.jp/recruit/",
+  "holidays": "完全週休2日制（土日）、祝日、年末年始休暇、夏季休暇、有給休暇"
+},
+        {
+  "name": "ポート株式会社",
+  "kana": "ポート",
+  "points": "若手活躍、社会貢献性の高い事業",
+  "listed": "上場（東証グロース）",
+  "capital": "24億3,100万円（2025年6月末時点）",
+  "sales": "119億1,000万円（2023年3月期）",
+  "employees": "876名（2025年6月末時点、連結）",
+  "pr": "「世界を、日本を、希望に満ちた場所にする。」をミッションに、キャリア、ファイナンス、医療などの分野で複数のメディアを運営し、社会課題を解決しています。",
+  "business": "インターネットメディア事業（人材支援サービス事業、金融サービス事業、リフォームサービス事業、その他サービス）",
+  "recruit_faculties": "全学部・学科",
+  "job_description": "企画、開発、編集、営業",
+  "benefits": "社会保険完備、交通費支給、リモートワーク手当、書籍購入補助、確定拠出年金制度、社員持株会、住宅補助（本社より2km圏内）",
+  "salary": "月給280,500円（基本給188,600円、定額残業手当68,900円、調整手当23,000円、みなし残業時間45時間）※2026年卒の新卒採用情報より",
+  "homepage": "https://www.theport.jp/recruit/",
+  "holidays": "完全週休2日制（土日）、祝日、年末年始休暇、夏季休暇、有給休暇"
+},
+        {
+  "name": "株式会社LIFULL",
+  "kana": "ライフル",
+  "points": "社会貢献、グローバル展開",
+  "listed": "上場（東証プライム）",
+  "capital": "97億2,300万円（2025年6月30日時点）",
+  "sales": "344億6,600万円（2024年9月期）",
+  "employees": "1,696名（2023年9月時点、内臨時雇用者187名、海外子会社761名）",
+  "pr": "「あらゆる『LIFE』を、フルに活かす」をコンセプトに、不動産・住宅情報サイト「LIFULL HOME'S」を運営。社会課題解決を目指した事業も展開しています。",
+  "business": "不動産情報サービス事業、海外事業、その他新規事業（地方創生事業、LivingAnywhere Commons事業など）",
+  "recruit_faculties": "全学部・学科",
+  "job_description": "ITエンジニア、企画・マーケティング、営業、デザイナー",
+  "benefits": "社会保険完備、交通費支給、育児・介護支援制度、従業員持株会、資格取得支援制度、週休3日制度（選択制）、健康相談室、各種特別休暇制度",
+  "salary": "月給280,000円（基本給213,900円、固定残業代66,100円/40時間分）",
+  "homepage": "https://lifull.com/career/",
+  "holidays": "完全週休2日制（土日）、祝日、夏季休暇、年末年始休暇、慶弔休暇"
+}
+        ],
+                "ソフトウエア": [
+         {
+  "name": "株式会社くすりの窓口",
+  "kana": "くすりのまどぐち",
+  "points": "調剤薬局事業とメディア運営",
+  "listed": "非公開",
+  "capital": "15億760万円",
+  "sales": "111億9,900万円（2025年3月期）",
+  "employees": "434名（2023年7月31日現在）",
+  "pr": "調剤薬局事業を主軸に、IT技術を活用したメディア事業も展開し、医療分野の課題解決に貢献しています。",
+  "business": "調剤薬局事業、医療・ヘルスケア分野のインターネットサービス事業",
+  "recruit_faculties": "情報なし",
+  "job_description": "ITエンジニア、営業、カスタマーサポート",
+  "benefits": "各種社会保険完備、通勤手当、住宅手当、結婚・出産祝い金など",
+  "salary": "新卒営業職：月給27万円程度（固定残業代含む）",
+  "homepage": "https://kusurinomadoguchi.co.jp/",
+  "holidays": "完全週休2日制（土日祝）、年間休日123日"
+},
+          {
+    "name": "HRクラウド株式会社",
+    "kana": "エイチアールクラウド",
+    "points": "人事向けクラウドサービス",
+    "listed": "非公開",
+    "capital": "52,515,501円（資本剰余金を含む）",
+    "sales": "非公開",
+    "employees": "88名（2024年4月現在）",
+    "pr": "「明日の仕事が楽しみな世の中を創る」をミッションに、企業の人事課題を解決するクラウドサービスを開発・提供しています。",
+    "business": "人事向けSaaS開発・提供",
+    "recruit_faculties": "情報なし",
+    "job_description": "営業、開発、カスタマーサクセス",
+    "benefits": "書籍購入補助、有給休暇、結婚・出産祝い金、通勤手当など",
+    "salary": "新卒：月給250,000円（固定残業代含む）",
+    "homepage": "https://hr-cloud.co.jp/",
+    "holidays": "年間休日125日、完全週休2日制（土日祝）"
+  },
+  {
+    "name": "株式会社オズビジョン",
+    "kana": "オズビジョン",
+    "points": "ポイントサイト「ハピタス」の運営",
+    "listed": "非公開",
+    "capital": "3000万円",
+    "sales": "73億円（2023年度）",
+    "employees": "120名",
+    "pr": "「人の力とテクノロジーで、感動と価値を創造する」をビジョンに、顧客満足度の高いポイントサイト「ハピタス」を運営しています。",
+    "business": "ポイントサイト「ハピタス」の企画・運営",
+    "recruit_faculties": "情報なし",
+    "job_description": "ウェブマーケティング、エンジニア、デザイナー",
+    "benefits": "オフィスフリードリンク、交通費支給、福利厚生倶楽部など",
+    "salary": "情報なし",
+    "homepage": "https://www.oz-vision.co.jp/recruit/",
+    "holidays": "完全週休2日制（土日・祝日）、年間休日120日以上"
+  },
+         {
+  "name": "株式会社ワークスアプリケーションズ",
+  "kana": "ワークスアプリケーションズ",
+  "points": "大手ERPソフトウェア開発",
+  "listed": "非公開",
+  "capital": "非公開",
+  "sales": "93億4500万円（2024年6月期）",
+  "employees": "885名（2025年6月時点）",
+  "pr": "大手企業向けに、人事・会計などの基幹業務システム（ERP）を開発・提供しています。",
+  "business": "ERPソフトウェアの開発・販売",
+  "recruit_faculties": "情報なし",
+  "job_description": "システムエンジニア、ITコンサルタント",
+  "benefits": "各種社会保険、通勤手当、在宅手当、独自の育児支援制度、フレックス勤務制度など",
+  "salary": "初年度年俸470万円～600万円（選考結果による）",
+  "homepage": "https://recruit.worksap.co.jp/",
+  "holidays": "完全週休2日制（土日）、祝日、年末年始、夏季休暇、フレックス休暇など"
+},
+         {
+  "name": "株式会社林電子",
+  "kana": "はやしでんし",
+  "points": "組込みソフトウェア開発",
+  "listed": "非公開",
+  "capital": "3,000万円",
+  "sales": "8億円（2024年3月期）",
+  "employees": "80名（2025年4月時点）",
+  "pr": "家電や自動車、産業機械などの組込みソフトウェア開発を手掛けています。技術者の育成に力を入れています。",
+  "business": "組込みソフトウェア開発、システム開発",
+  "recruit_faculties": "情報なし",
+  "job_description": "ソフトウェア開発エンジニア",
+  "benefits": "社会保険完備、借上社宅制度、交通費全額支給、退職金制度、資格取得奨励金など",
+  "salary": "新卒：月給210,000円",
+  "homepage": "https://www.hayashi-ele.co.jp/recruit/",
+  "holidays": "年間休日126日、完全週休2日制（土日）、祝日、夏季休暇、年末年始休暇など"
+},
+         {
+  "name": "株式会社ジャノメクレディア",
+  "kana": "ジャノメクレディア",
+  "points": "ミシン・産業用機器のソフトウェア開発",
+  "listed": "非公開",
+  "capital": "1億5,000万円",
+  "sales": "32億8,600万円（2024年3月期）",
+  "employees": "207名（2024年4月現在）",
+  "pr": "ミシンメーカーのジャノメグループ企業として、ミシンや産業用機器のソフトウェア開発を中心に事業を展開しています。",
+  "business": "ミシン・産業用機器のソフトウェア開発",
+  "recruit_faculties": "情報なし",
+  "job_description": "システムエンジニア",
+  "benefits": "社会保険完備、財産形成貯蓄制度、褒賞制度（外部資格取得）、総合福利厚生サービス、退職金制度など",
+  "salary": "初任給：修士了250,000円、大卒240,000円",
+  "homepage": "https://www.janome-credia.jp/recruit/",
+  "holidays": "年間休日123日、完全週休2日制（土日）、年末年始休暇、夏季休暇、有給休暇、フレックス休暇など"
+},
+         {
+  "name": "株式会社ネクスタム",
+  "kana": "ネクスタム",
+  "points": "システム開発・インフラ構築",
+  "listed": "非公開",
+  "capital": "1,000万円",
+  "sales": "情報なし",
+  "employees": "21名",
+  "pr": "システム開発からインフラ構築まで、幅広いITソリューションを提供しています。お客様の課題に合わせた最適なソリューションを提案します。",
+  "business": "システム開発、インフラ構築、ITコンサルティング",
+  "recruit_faculties": "情報なし",
+  "job_description": "システムエンジニア、インフラエンジニア",
+  "benefits": "家族手当、住宅手当、技術手当、資格手当、社員旅行、BBQなど",
+  "salary": "初任給：242,200円（2024年度実績）",
+  "homepage": "https://www.nextam.jp/recruit/",
+  "holidays": "年間休日122日（2023年度実績）、完全週休2日制（土日）、祝日、年末年始休暇、長期休暇など"
+}
+        ],
+        "デジタルマーケティング": [
+         {
+  "name": "株式会社アイエスエフネット",
+  "kana": "アイエスエフネット",
+  "points": "ITインフラの設計・構築・運用",
+  "listed": "非公開",
+  "capital": "100万円",
+  "sales": "252億9,700万円（2023年6月期）",
+  "employees": "約3,000名（グループ全体）",
+  "pr": "ITインフラの設計、構築、運用、保守サービスをワンストップで提供。未経験者向けの研修も充実しています。",
+  "business": "ITインフラ構築・運用、セキュリティサービス",
+  "recruit_faculties": "情報なし",
+  "job_description": "ITエンジニア、営業",
+  "benefits": "社会保険完備、確定拠出年金、企業型確定拠出年金、財形貯蓄、社員持株会、育児支援制度、介護支援制度、住宅手当、資格取得支援制度など",
+  "salary": "初任給：大卒223,000円、院卒230,000円",
+  "homepage": "https://www.isfnet.com/recruit/",
+  "holidays": "年間休日120日、完全週休2日制（土日）、祝日、年末年始休暇、夏季休暇、慶弔休暇、有給休暇など"
+},
+         {
+  "name": "株式会社レントラックス",
+  "kana": "レントラックス",
+  "points": "成果報酬型広告ASPサービス",
+  "listed": "東証グロース上場",
+  "capital": "4億4,009万6,000円",
+  "sales": "38億6,200万円（2025年3月期）",
+  "employees": "単体 84名、連結 196名（2023年3月末現在）",
+  "pr": "成果報酬型の広告サービス（アフィリエイト）を提供。ウェブサイト運営者と広告主を結びつけ、効果的なマーケティングを支援します。",
+  "business": "成果報酬型広告ASPサービス事業",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業、広告運用",
+  "benefits": "読書推奨制度、出張マッサージ、海外事務所視察制度、ネイル（女性限定）、精神と時の部屋制度などユニークな福利厚生が多数",
+  "salary": "初任給：月給26万円",
+  "homepage": "https://www.rentracks.co.jp/recruit/",
+  "holidays": "年間休日122日、完全週休2日制（土日）、祝日、年末年始休暇、GW休暇、夏季休暇、有給休暇、慶弔休暇など"
+},
+         {
+  "name": "クラウドサーカス株式会社",
+  "kana": "クラウドサーカス",
+  "points": "デジタルマーケティングSaaS",
+  "listed": "非公開",
+  "capital": "1億5,000万円",
+  "sales": "25億円（2025年度見込）",
+  "employees": "261名（社員216名、契約社員・スタッフ45名）※2024年3月末時点",
+  "pr": "企業が簡単にデジタルマーケティングを行えるSaaSツール「Cloud CIRCUS」を提供。中小企業のDXを支援しています。",
+  "business": "デジタルマーケティングSaaS事業",
+  "recruit_faculties": "情報なし",
+  "job_description": "セールス、マーケティング、エンジニア",
+  "benefits": "社会保険完備、従業員持株会、保養所、育児・介護短時間勤務制度、育児休業、看護・介護休業制度など",
+  "salary": "情報なし",
+  "homepage": "https://cloudcircus.jp/recruit/",
+  "holidays": "年間休日120日、完全週休2日制（土日）、祝日、年末年始休暇、夏季休暇、慶弔休暇、有給休暇など"
+},
+       {
+  "name": "株式会社シンフィールド",
+  "kana": "シンフィールド",
+  "points": "漫画を活用したマーケティング",
+  "listed": "非公開",
+  "capital": "1,000万円",
+  "sales": "情報なし",
+  "employees": "11名（2023年時点）",
+  "pr": "「マンガ広告」という独自の切り口で、企業のマーケティングを支援。漫画家やクリエイターとの連携も強みです。",
+  "business": "マンガマーケティング事業",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業、企画、デザイナー",
+  "benefits": "社会保険完備、交通費全額支給、健康診断、服装自由、住宅手当（条件あり）、役職手当、ランチ手当",
+  "salary": "情報なし",
+  "homepage": "https://shinfield.jp/recruit/",
+  "holidays": "完全週休2日制（土日）、祝日、年末年始休暇、GW休暇、夏季休暇、有給休暇、慶弔休暇"
+},
+          {
+  "name": "株式会社CS-C",
+  "kana": "シーエスシー",
+  "points": "地域に根ざした店舗集客支援",
+  "listed": "非公開",
+  "capital": "1,000万円",
+  "sales": "情報なし",
+  "employees": "119名（2023年時点）",
+  "pr": "地域に密着した店舗ビジネスの集客を、デジタルツールとコンサルティングで支援。地方創生にも貢献しています。",
+  "business": "店舗向けデジタルマーケティング事業",
+  "recruit_faculties": "情報なし",
+  "job_description": "コンサルティング営業",
+  "benefits": "社会保険完備、交通費全額支給、社員旅行、育児休暇、時短勤務、書籍購入補助、リモートワーク制度（条件あり）",
+  "salary": "情報なし",
+  "homepage": "https://s-cs-c.com/profile/",
+  "holidays": "年間休日124日、完全週休2日制（土日）、祝日、年末年始休暇、夏季休暇、有給休暇、慶弔休暇"
+},
+          {
+  "name": "株式会社メディックス",
+  "kana": "メディックス",
+  "points": "ウェブ広告・マーケティングコンサルティング",
+  "listed": "非公開",
+  "capital": "7,580万円",
+  "sales": "163億円（2025年3月期見込）",
+  "employees": "325名（2024年7月時点）",
+  "pr": "効果的なウェブ広告運用とマーケティングコンサルティングを提供。顧客企業のビジネス成長をサポートします。",
+  "business": "ウェブ広告運用代行、マーケティングコンサルティング",
+  "recruit_faculties": "情報なし",
+  "job_description": "ウェブマーケター、営業",
+  "benefits": "社会保険完備、交通費支給、退職金制度、育児休暇制度、リフレッシュ休暇、資格取得支援制度",
+  "salary": "情報なし",
+  "homepage": "https://www.medix-inc.co.jp/recruit/",
+  "holidays": "年間休日125日、完全週休2日制（土日）、祝日、GW、夏季、年末年始休暇"
+},
+         {
+  "name": "株式会社ロンバード",
+  "kana": "ロンバード",
+  "points": "ウェブサイト制作・コンサルティング",
+  "listed": "非公開",
+  "capital": "5,000万円",
+  "sales": "非公開",
+  "employees": "約30名（2024年時点）",
+  "pr": "ユーザーの心を掴むウェブサイト制作と、成果に繋がるコンサルティングを提供。企業のウェブ戦略を支援します。",
+  "business": "ウェブサイト制作、ウェブコンサルティング",
+  "recruit_faculties": "情報なし",
+  "job_description": "ウェブディレクター、ウェブデザイナー",
+  "benefits": "社会保険完備、交通費支給、独立支援制度、資格取得支援、社員旅行",
+  "salary": "情報なし",
+  "homepage": "https://www.lombard.co.jp/",
+  "holidays": "年間休日120日以上、完全週休2日制（土日）、祝日、夏季休暇、年末年始休暇、慶弔休暇"
+}
+        ],
+        "通信": [
+          {
+  "name": "株式会社NTTビジネスアソシエ東日本",
+  "kana": "エヌティティビジネスアソシエひがしにほん",
+  "points": "NTTグループの業務支援サービス",
+  "listed": "非公開",
+  "capital": "1億円",
+  "sales": "429億1,200万円（2023年度）",
+  "employees": "3,468名（2024年4月1日現在）",
+  "pr": "NTTグループの業務支援を担う会社として、経理や人事、福利厚生などのアウトソーシングサービスを提供しています。",
+  "business": "アウトソーシングサービス（経理・人事・福利厚生など）",
+  "recruit_faculties": "全学部・全学科",
+  "job_description": "法人営業、サポート",
+  "benefits": "社会保険完備、NTT健康保険組合、NTT企業年金基金、共済会、ベネフィット・ワン、住宅補助制度、財形貯蓄、社員持株会",
+  "salary": "大学卒：月給211,850円",
+  "homepage": "https://www.nttba-east.co.jp/company/profile.html",
+  "holidays": "年間休日120日以上、完全週休2日制（土・日）、祝日、年末年始休暇、夏季特別休暇、年次有給休暇"
+},
+         {
+  "name": "兼松コミュニケーションズ株式会社",
+  "kana": "かねまつコミュニケーションズ",
+  "points": "携帯電話販売代理店",
+  "listed": "非公開",
+  "capital": "14億2500万円",
+  "sales": "1,412億3200万円（2024年3月期）",
+  "employees": "2,394名（2025年4月現在）",
+  "pr": "携帯電話の販売代理店として、全国に店舗を展開。お客様のモバイルライフをサポートしています。携帯販売のほか、法人向けソリューションサービスも提供しています。",
+  "business": "移動体通信機器及び関連機器の販売、国内外向けソリューションサービス",
+  "recruit_faculties": "全学部・全学科",
+  "job_description": "販売スタッフ、法人営業",
+  "benefits": "社会保険完備、時間外勤務手当、通勤手当、家賃補助（転勤時）、退職金制度、自己啓発費用補助、福利厚生サービス法人会員",
+  "salary": "210,500円（四大卒、2025年度実績）",
+  "homepage": "https://www.kcs.ne.jp/recruit/",
+  "holidays": "年間休日120日以上（2023年度実績123日）、週休2日制、年末年始休暇、夏季休暇"
+},
+{
+  "name": "株式会社コスモネット",
+  "kana": "コスモネット",
+  "points": "モバイル通信サービス販売",
+  "listed": "非公開",
+  "capital": "5億6600万円",
+  "sales": "832億2500万円（2023年3月期グループ計）",
+  "employees": "2,094名",
+  "pr": "モバイル通信サービスの販売を通じて、人々の豊かな生活を支えています。全国のドコモショップやauショップを運営しています。",
+  "business": "ICTサービスプロバイダー事業（携帯電話販売・サービス）、企業向けソリューション事業",
+  "recruit_faculties": "情報なし",
+  "job_description": "携帯販売、店舗運営、法人営業",
+  "benefits": "社会保険完備、連続休暇制度、アニバーサリー休暇、借り上げ住居、住宅・地域手当、退職慰労金制度",
+  "salary": "205,379円～（四大卒、地域により変動）",
+  "homepage": "https://www.cosmonet.co.jp/recruit/",
+  "holidays": "年間休日110日、月9日～10日休み、有給休暇、慶弔休暇、連続休暇制度"
+},
+          {
+  "name": "株式会社モバイルコミュニケーションズ",
+  "kana": "モバイルコミュニケーションズ",
+  "points": "モバイル関連サービス提供",
+  "listed": "非公開",
+  "capital": "5,500万円",
+  "sales": "約67億円",
+  "employees": "約1,510名（2024年12月末時点）",
+  "pr": "モバイル端末の販売から、法人向けソリューションまで、モバイル関連の幅広いサービスを提供しています。技術系アウトソーシング事業も展開しています。",
+  "business": "国内技術系アウトソーシング事業、携帯電話販売",
+  "recruit_faculties": "情報なし",
+  "job_description": "法人営業、販売職、技術職",
+  "benefits": "社会保険完備、交通費支給、残業手当、資格取得一時金手当、住宅手当、家族手当",
+  "salary": "210,000円（四大卒、2025年度実績）",
+  "homepage": "https://www.mc-group.co.jp/recruit/",
+  "holidays": "年間休日120日以上（2024年度実績125日）、週休2日制（土日）、祝日、GW休暇、夏季休暇、年末年始休暇"
+},
+          {
+  "name": "テレニシ株式会社",
+  "kana": "テレニシ",
+  "points": "通信サービス・OA機器販売",
+  "listed": "非公開",
+  "capital": "1,000万円",
+  "sales": "情報なし",
+  "employees": "情報なし",
+  "pr": "通信サービスやOA機器の販売を通じて、企業の業務効率化をサポート。地域社会に貢献しています。",
+  "business": "情報通信サービス事業、モバイルソリューション事業、法人ソリューション事業",
+  "recruit_faculties": "情報なし",
+  "job_description": "法人営業、店舗運営職、技術職",
+  "benefits": "各種社会保険完備、確定拠出年金、退職金制度、従業員持株会、住宅手当、家族手当",
+  "salary": "222,000円（四大卒、2025年度実績）",
+  "homepage": "https://www.tele-nishi.co.jp/recruit/",
+  "holidays": "週休2日制（月8〜10日）、年間休日115日、夏季休暇、年末年始休暇、有給休暇、慶弔休暇"
+},
+         {
+  "name": "株式会社ケンツー",
+  "kana": "ケンツー",
+  "points": "モバイル通信機器販売・ソリューション",
+  "listed": "非公開",
+  "capital": "5,000万円",
+  "sales": "10億円（2024年度）",
+  "employees": "正社員124名、従業員159名（2025年4月集計）",
+  "pr": "モバイル通信機器の販売や、企業向けのモバイルソリューションを提供。IT技術で社会の発展に貢献しています。通信業界に特化した人材サービス・アウトソーシング事業を展開。",
+  "business": "モバイル通信機器販売、モバイルソリューション事業、人材サービス・アウトソーシング事業",
+  "recruit_faculties": "情報なし",
+  "job_description": "法人営業、ショップスタッフ、通信工事、コールセンター、事務",
+  "benefits": "社会保険完備、交通費全額支給、住宅手当（自己名義の場合）、家族手当、資格手当、退職金制度、確定拠出年金（401K）、各種お祝い金制度",
+  "salary": "200,000円（基本給+住宅手当）",
+  "homepage": "https://www.kentu.co.jp/",
+  "holidays": "年間休日113日、完全週休2日制（曜日は配属先による）、夏季休暇、年末年始休暇、年次有給休暇"
+}
+        ]
+      },
+      "service": {
+        "アパレル": [
+          {
+            "name": "株式会社ジュエリーピコ",
+            "kana": "ジュエリーピコ",
+            "points": "ブライダルリングの販売、ジュエリーの企画・製造",
+            "listed": "非公開",
+            "capital": "1,000万円",
+            "sales": "86億8,424万円（2023年実績）",
+            "employees": "222名（2023年12月現在）",
+            "pr": "ブライダルリングのセレクトショップ「ビジュピコ」を運営。全国展開しており、ジュエリーの企画・製造も手掛けています。",
+            "business": "ジュエリー・ブライダルリングの販売、企画、製造",
+            "recruit_faculties": "情報なし",
+            "job_description": "ブライダルリング販売職、事務系総合職",
+            "benefits": "情報なし",
+            "salary": "230,000円～280,000円（固定残業代を含む）",
+            "homepage": "https://www.bijoupiko.com/recruit/",
+            "holidays": "情報なし"
+          },
+          {
+            "name": "さが美グループホールディングス株式会社",
+            "kana": "さがみグループホールディングス",
+            "points": "きもの専門店の展開",
+            "listed": "非公開",
+            "capital": "1億円",
+            "sales": "非公開",
+            "employees": "809名",
+            "pr": "「きもの」文化を現代に伝える専門店の運営と、それに付随する和装関連事業を展開しています。",
+            "business": "きもの専門店の経営",
+            "recruit_faculties": "全学部・全学科",
+            "job_description": "総合職（店舗運営、営業、商品企画など）",
+            "benefits": "交通費支給、時間外勤務手当",
+            "salary": "大卒初任給：205,000円",
+            "homepage": "https://www.sagami.co.jp/",
+            "holidays": "情報なし"
+          },
+         {
+  "name": "株式会社タカハシ",
+  "kana": "タカハシ",
+  "points": "総合衣料品ディスカウントストア",
+  "listed": "非公開",
+  "capital": "3,600万円",
+  "sales": "情報なし",
+  "employees": "約770名（男性約150名、女性約620名）",
+  "pr": "「毎日が激安！」をコンセプトに、衣料品や生活雑貨を低価格で提供するディスカウントストアを展開しています。",
+  "business": "総合衣料品ディスカウントストア「タカハシ」の運営",
+  "recruit_faculties": "情報なし",
+  "job_description": "店舗責任者、バイヤー、店舗スタッフ",
+  "benefits": "社会保険完備、交通費全額支給、超過勤務手当、社員割引、ライフテスト手当",
+  "salary": "月給21万円〜35万円 + 賞与年2回 + 残業代（職位やグレードによる）",
+  "homepage": "https://tasm.co.jp/recruit/",
+  "holidays": "月9日（シフト制）、年間休日107日、夏季休暇、冬季休暇"
+},
+          {
+            "name": "株式会社アージュ",
+            "kana": "アージュ",
+            "points": "総合衣料品店「パレット」の運営",
+            "listed": "非公開",
+            "capital": "1億円",
+            "sales": "135億9,700万円（2024年2月期）",
+            "employees": "840名（2024年2月時点）",
+            "pr": "総合衣料品店「パレット」を全国に展開し、お客様の生活を彩る商品を豊富に取り揃えています。",
+            "business": "総合衣料品店「パレット」の運営",
+            "recruit_faculties": "情報なし",
+            "job_description": "総合職（バイヤー職、店長職）",
+            "benefits": "情報なし",
+            "salary": "240,000円～600,000円",
+            "homepage": "https://www.age-inc.co.jp/recruit/",
+            "holidays": "情報なし"
+          }
+        ],
+        "アミューズメント・レジャー": [
+          {
+            "name": "日本スキー場開発株式会社",
+            "kana": "にほんスキーじょうかいはつ",
+            "points": "スキー場・マウンテンリゾート運営",
+            "listed": "東証グロース",
+            "capital": "10億円",
+            "sales": "82億4,533万円（2024年7月期）",
+            "employees": "233名（グループ連結／2024年7月末）",
+            "pr": "スキー場運営を主軸に、マウンテンリゾート事業を展開。通年で楽しめるレジャー施設を提供しています。",
+            "business": "スキー場・マウンテンリゾート運営",
+            "recruit_faculties": "全学部・全学科",
+            "job_description": "ゲレンデ管理、索道管理、施設・料飲・物販部門、ホテル部門、営業、管理部門",
+            "benefits": "住宅補助あり",
+            "salary": "250,000円程度（月給制）",
+            "homepage": "https://www.nippon-ski.jp/recruit.php",
+            "holidays": "情報なし"
+          },
+          {
+  "name": "株式会社第一興商",
+  "kana": "だいいちこうしょう",
+  "points": "カラオケ事業「ビッグエコー」、業務用カラオケ「DAM」",
+  "listed": "上場（東証プライム）",
+  "capital": "123億5,000万円",
+  "sales": "1,530億2,000万円（2025年3月期）",
+  "employees": "1,932名（単体）、3,411名（グループ連結）（2024年3月時点）",
+  "pr": "カラオケ事業「ビッグエコー」や、業務用通信カラオケシステム「DAM」の賃貸・販売を基幹事業としています。その他、音楽ソフト・映像ソフトの企画、制作、販売も行っています。",
+  "business": "業務用カラオケ事業、カラオケ・飲食店舗事業、音楽ソフト事業、パーキングビジネス事業など",
+  "recruit_faculties": "全学部・全学科",
+  "job_description": "営業職、店舗運営、事務系総合職、経理職など",
+  "benefits": "社会保険完備、退職金制度、財形貯蓄制度、社員持株会、社員割引制度、保養所、優秀営業報奨旅行",
+  "salary": "月給269,000円〜420,000円（経験者向け）、初年度年収350万円〜660万円",
+  "homepage": "https://www.dkkaraoke.co.jp/recruit/",
+  "holidays": "年間休日120日（2024年度実績）"
+},
+         {
+  "name": "株式会社アコーディア・ゴルフ",
+  "kana": "アコーディアゴルフ",
+  "points": "ゴルフ場・ゴルフ練習場の運営",
+  "listed": "非公開",
+  "capital": "109.4億円",
+  "sales": "639.0886億円",
+  "employees": "9,962名（2025年3月末、パート・アルバイトを含む）",
+  "pr": "国内最多のゴルフ場を運営し、ゴルフを身近なスポーツにするための新しいサービスを積極的に展開しています。",
+  "business": "ゴルフ場の運営・管理、ゴルフ練習場の運営・管理",
+  "recruit_faculties": "学部学科不問",
+  "job_description": "オペレーション部門（ゴルフ場、ゴルフ練習場の運営全般）、コース管理部門、レストラン（ホール・調理）、キャディ",
+  "benefits": "社会保険完備、通勤手当、時間外手当、転勤赴任手当、社員割引（プレー料金、ゴルフ用品、レストランなど）",
+  "salary": "月給230,000円〜（大学卒・大学院卒）",
+  "homepage": "https://www.accordia.co.jp/recruit/fresh/message.html",
+  "holidays": "週休2日（シフト制、年間休日120日、2024年度実績）"
+},
+          {
+            "name": "株式会社廣目屋",
+            "kana": "ひろめや",
+            "points": "ディスプレイ・空間デザイン",
+            "listed": "非公開",
+            "capital": "情報なし",
+            "sales": "情報なし",
+            "employees": "情報なし",
+            "pr": "展示会やイベントのディスプレイ・空間デザインを手掛けています。企画から施工、運営までをトータルにサポートします。",
+            "business": "展示会・イベントのディスプレイ・空間デザイン、施工、運営",
+            "recruit_faculties": "情報なし",
+            "job_description": "営業職",
+            "benefits": "情報なし",
+            "salary": "情報なし",
+            "homepage": "http://www.hiromeya.co.jp/support/employment.html",
+            "holidays": "情報なし"
+          }
+        ],
+        "エンタメ・ゲーム": [
+ {
+  "name": "株式会社Colorful Palette",
+  "kana": "カラフルパレット",
+  "points": "スマートフォン向けゲームの開発・運営",
+  "listed": "非公開",
+  "capital": "1億2,400万円",
+  "sales": "情報なし",
+  "employees": "256名（2025年9月更新）",
+  "pr": "「プロジェクトセカイ カラフルステージ！ feat. 初音ミク」の開発・運営を行うゲーム会社。サイバーエージェントグループに属し、クリエイターが活躍できる環境です。",
+  "business": "スマートフォン向けゲームの企画、開発、運営",
+  "recruit_faculties": "情報なし",
+  "job_description": "企画職、デザイナー職、エンジニア職など",
+  "benefits": "社会保険完備、通勤手当、住宅手当、夕食補助、無料自動販売機",
+  "salary": "年収 426万円〜（イラストレーターなど）",
+  "homepage": "https://colorfulpalette.co.jp/recruit/",
+  "holidays": "完全週休2日制（土日）、祝日、夏季休暇（3日間）、年末年始休暇、年間休日120日以上"
+},
+  {
+    "name": "株式会社テクロス",
+    "kana": "テクロス",
+    "points": "ゲームソフトウェアの開発・運営",
+    "listed": "非公開",
+    "capital": "1,000万円",
+    "sales": "36億8,521万円（2024年1月期）",
+    "employees": "155名（2025年1月時点）",
+    "pr": "自社IPを保有し、ゲームソフトウェアの開発・運営を行っています。京都に本社を構え、完全週休二日制や時差出勤制度など、働きやすい環境を提供しています。",
+    "business": "ゲームソフトウェアの企画、開発、運営",
+    "recruit_faculties": "情報なし",
+    "job_description": "グラフィック制作サポート、UIデザイナー、イラストマネージャー、VPoE候補、ゲームディレクター、2Dアニメーションデザイナー",
+    "benefits": "年間休日120日以上、社宅・家賃補助制度",
+    "salary": "240万円～840万円",
+    "homepage": "https://www.techorus.com/recruit/",
+    "holidays": "完全週休二日制"
+  }
+],
+"タクシー": [
+  {
+    "name": "株式会社三和交通統轄本部",
+    "kana": "さんわこうつう",
+    "points": "ハイヤー・タクシー事業",
+    "listed": "非公開",
+    "capital": "2,500万円",
+    "sales": "98億円（2024年3月期）",
+    "employees": "1,600名",
+    "pr": "ハイヤー・タクシー事業を中心に、自動車学校や不動産事業など多角的な経営を展開。首都圏を中心に質の高いサービスを提供しています。",
+    "business": "ハイヤー・タクシー事業、自動車学校経営、不動産業など",
+    "recruit_faculties": "情報なし",
+    "job_description": "タクシー乗務員",
+    "benefits": "情報なし",
+    "salary": "情報なし",
+    "homepage": "https://www.sanwakotsu.co.jp/recruit/new_graduates/",
+    "holidays": "情報なし"
+  },
+  {
+    "name": "日の丸交通株式会社",
+    "kana": "ひのまるこうつう",
+    "points": "都内大手タクシー・ハイヤー会社",
+    "listed": "非公開",
+    "capital": "1億3,000万円",
+    "sales": "134億円（2023年度）",
+    "employees": "2,660名",
+    "pr": "安全・安心を第一に、都内を中心に高品質なタクシー・ハイヤーサービスを提供。教育制度やメンター制度が充実しています。",
+    "business": "タクシー・ハイヤー事業",
+    "recruit_faculties": "情報なし",
+    "job_description": "タクシー乗務員",
+    "benefits": "住宅補助あり、二種免許取得支援制度、各種研修制度",
+    "salary": "240,000円程度（月給制）",
+    "homepage": "https://hinomaru-taxi.com/recruit/",
+    "holidays": "情報なし"
+  },
+  {
+    "name": "平和交通株式会社",
+    "kana": "へいわこうつう",
+    "points": "都内大手タクシー会社",
+    "listed": "非公開",
+    "capital": "1億1,975万円",
+    "sales": "65億円（2020年3月期）",
+    "employees": "2,334名",
+    "pr": "タクシー運行事業を主軸に、自動車整備やゴルフ練習場経営など多岐にわたる事業を展開しています。",
+    "business": "タクシー運行事業、自動車整備、ゴルフ練習場経営",
+    "recruit_faculties": "情報なし",
+    "job_description": "タクシー乗務員",
+    "benefits": "情報なし",
+    "salary": "情報なし",
+    "homepage": "https://www.heiwa-kotsu.co.jp/recruit/",
+    "holidays": "情報なし"
+  },
+  {
+    "name": "帝都自動車交通株式会社",
+    "kana": "ていとじどうしゃこうつう",
+    "points": "京成グループの大手タクシー・ハイヤー会社",
+    "listed": "非公開",
+    "capital": "1億円",
+    "sales": "170億円（2024年2月期）",
+    "employees": "2,042名",
+    "pr": "『世界一の安全安心』をテーマに、お客様に快適な移動を提供。タクシー・ハイヤー業界のリーディングカンパニーとして事業を拡大しています。",
+    "business": "タクシー・ハイヤー事業",
+    "recruit_faculties": "情報なし",
+    "job_description": "事務系総合職、プロフェッショナルドライバー",
+    "benefits": "社員寮あり（職種による）、入社祝金",
+    "salary": "初任給：199,000円～（職種による）",
+    "homepage": "https://www.teito-motor.co.jp/saiyo/",
+    "holidays": "情報なし"
+  },
+  {
+    "name": "三ツ矢エミタスタクシーHD株式会社",
+    "kana": "みつやエミタスタクシーHD",
+    "points": "千葉県トップクラスのタクシー会社",
+    "listed": "非公開",
+    "capital": "1億9,500万円",
+    "sales": "73億8,817万円（令和5年3月期）",
+    "employees": "約1,500名",
+    "pr": "千葉県を拠点に、タクシー事業、介護事業などを展開。地域密着型のサービスで安定した経営基盤を築いています。",
+    "business": "タクシー事業、介護事業、旅客運送事業",
+    "recruit_faculties": "情報なし",
+    "job_description": "タクシー乗務員",
+    "benefits": "二種免許取得費用全額負担",
+    "salary": "月給300,000円～713,471円（職種による）",
+    "homepage": "https://www.emitas.jp/recruitment/companies/mitsuya-emitas-hd/",
+    "holidays": "情報なし"
+  }
+],
+"ホテル・旅館": [
+  {
+  "name": "株式会社伊東園ホテルズ",
+  "kana": "いとうえんホテルズ",
+  "points": "365日同一料金で宿泊できるホテル運営",
+  "listed": "非公開",
+  "capital": "3,000万円",
+  "sales": "情報なし",
+  "employees": "3,810名（2024年12月時点）",
+  "pr": "「温泉宿に泊まる楽しさをもっと手軽に」をコンセプトに、全国で温泉ホテルを展開。宿泊プランも充実しています。全国の地方にある有名温泉地で50拠点を展開しています。",
+  "business": "ホテル・旅館運営、関連事業",
+  "recruit_faculties": "情報なし",
+  "job_description": "ホテルスタッフ、ホテル調理スタッフ",
+  "benefits": "各種社会保険完備、マイカー通勤可、慶弔見舞金、寮完備（入社3ヵ月無料）、社員優待制度（カラオケルーム歌広場の室料半額、伊東園ホテルズの宿泊優待）",
+  "salary": "情報なし",
+  "homepage": "https://www.itoenhotel.com/recruit/",
+  "holidays": "情報なし"
+},
+  {
+    "name": "株式会社スーパーホテル",
+    "kana": "スーパーホテル",
+    "points": "LOHASなビジネスホテル",
+    "listed": "非公開",
+    "capital": "6,750万円",
+    "sales": "481億4,300万円（2024年3月期）",
+    "employees": "136名（役員・契約社員を除く）",
+    "pr": "「安全・清潔・ぐっすり」をモットーに、LOHAS（健康と環境）を追求したホテルを国内外に展開。若手社員が活躍できるキャリアステップが魅力です。",
+    "business": "ビジネスホテルチェーンの運営",
+    "recruit_faculties": "情報なし",
+    "job_description": "総合職（店舗運営、IT・AI戦略室、建設企画部など）",
+    "benefits": "情報なし",
+    "salary": "情報なし",
+    "homepage": "https://www.superhotel.co.jp/recruit_lp.html",
+    "holidays": "情報なし"
+  }
+],
+    
+        "飲食・フードサービス": [
+         {
+  "name": "株式会社あきんどスシロー",
+  "kana": "アキンドスシロー",
+  "points": "回転寿司業界トップクラス",
+  "listed": "東証プライム",
+  "capital": "1億円",
+  "sales": "2,381億円（2024年9月期）",
+  "employees": "社員1,913名、アルバイト・パート51,856名",
+  "pr": "「うまいすしを腹一杯。うまいすしで心も一杯。」の企業理念のもと、回転寿司チェーン「スシロー」を運営しています。",
+  "business": "回転寿司チェーン「スシロー」の運営、店舗マネジメント。",
+  "recruit_faculties": "情報なし",
+  "job_description": "店舗マネジメント（ヒト・モノ・カネの管理、スタッフ指導・教育）",
+  "benefits": "社会保険完備、独身寮完備、食事補助、社員持株会、永年勤続表彰制度、慶弔見舞制度、引越し費用全額補助（入社時および転勤時）",
+  "salary": "初任給：月給25万円以上（地域手当別途支給）、社員平均年収：537.4万円、店長平均年収：617.2万円",
+  "homepage": "https://www.akindo-sushiro.co.jp/",
+  "holidays": "年間休日108日、週休2日制（シフト制）、慶弔休暇、産前・産後休暇、育児休暇、介護休暇、全店休業（年2日）、年2回5日間の連休取得推奨"
+},
+{
+  "name": "株式会社丸亀製麺",
+  "kana": "マルガメセイメン",
+  "points": "讃岐釜揚げうどん専門店の運営",
+  "listed": "非公開（親会社: 株式会社トリドールホールディングスが東証プライムに上場）",
+  "capital": "1,000万円",
+  "sales": "1,281億4,200万円（2025年3月期実績）",
+  "employees": "7,790名（2024年3月末時点、株式会社トリドールホールディングス全体）",
+  "pr": "打ち立て、茹でたての本格的な讃岐うどんを、手ごろな価格で提供するセルフ式うどん店「丸亀製麺」を運営。店内での製麺・調理にこだわり、ライブ感あふれる店舗づくりが特徴です。",
+  "business": "讃岐釜揚げうどん専門店「丸亀製麺」の経営、店舗運営。",
+  "recruit_faculties": "情報なし",
+  "job_description": "店舗マネジメント（店長、エリアマネージャー候補）",
+  "benefits": "各種社会保険完備、確定拠出年金制度、社員持株制度、制服貸与、食事補助、従業員優待券、借上社宅補助",
+  "salary": "情報なし",
+  "homepage": "https://www.toridoll.com/",
+  "holidays": "年間休日113日、シフト制（月7～10日）、有給休暇、結婚休暇、産休・育児介護休暇、リフレッシュ休暇、連続休暇取得制度"
+},
+{
+  "name": "株式会社ゼンショーグローバルレストランホールディングス",
+  "kana": "ゼンショーグローバルレストランホールディングス",
+  "points": "「世界から飢餓と貧困を撲滅する」を企業理念に掲げる食の総合企業",
+  "listed": "東証プライム",
+  "capital": "474億9,700万円",
+  "sales": "1兆1,366億8,400万円（2025年3月期 連結）",
+  "employees": "195,806人（連結）",
+  "pr": "調達・製造・物流・販売までを一貫管理する「マス・マーチャンダイジング・システム（MMD）」を世界中に展開。牛丼の「すき家」をはじめ、多様なフードサービスチェーンをグローバルに展開しています。",
+  "business": "フードサービスチェーンの経営、販売システム・食材加工システムの開発などを行う子会社等の統括・管理。",
+  "recruit_faculties": "情報なし",
+  "job_description": "総合職（店舗運営、商品開発、IT技術、R&D、介護、法務など）",
+  "benefits": "社会保険完備、借り上げ社宅制度（家賃補助）、住宅手当、社員割引ポイント制度、慶弔休暇",
+  "salary": "大卒初任給：312,000円、院卒初任給：330,000円",
+  "homepage": "https://www.zensho.co.jp/jp/",
+  "holidays": "年間休日120日、週休2日制（シフト制）、有給休暇、特別休暇（夏期・冬期休暇、慶弔休暇など）"
+},
+{
+  "name": "株式会社木曽路",
+  "kana": "キソジ",
+  "points": "しゃぶしゃぶ・日本料理、焼肉などを展開する外食企業",
+  "listed": "東証プライム・名証プレミア",
+  "capital": "126億4,800万円",
+  "sales": "532億2,900万円（2025年3月期 連結）",
+  "employees": "1,337名（正社員）",
+  "pr": "高品質な和食を提供する「木曽路」を中心に、「焼肉 大将軍」「くいどん」など多業態を展開。伝統的な「おもてなし」と「よろこびの食文化の創造」を企業理念としています。",
+  "business": "しゃぶしゃぶ・日本料理店「木曽路」をはじめとする各種飲食店の経営",
+  "recruit_faculties": "情報なし",
+  "job_description": "総合職（店長候補・接客長候補・和食調理師）",
+  "benefits": "各種社会保険完備、社員持株会、社員割引制度、財形貯蓄制度、企業型確定拠出年金、入寮制度（規定有）、保養所（リゾートトラスト）",
+  "salary": "大卒・修士了：月給264,500円（2025年4月実績）、短大・専門卒：月給245,000円（2025年4月実績）",
+  "homepage": "https://www.kisoji.co.jp/",
+  "holidays": "年間休日115日、週休2日制（月8～10日）、半期ごとに5連休取得可能、有給休暇、慶弔休暇"
+}
+        ],
+        "販売店・小売": [
+          {
+  "name": "株式会社エアウィーヴ",
+  "kana": "エアウィーヴ",
+  "points": "「The Quality Sleep（眠りの世界に品質を）」をブランドコンセプトに、マットレスパッドや寝具などを製造・販売",
+  "listed": "情報なし",
+  "capital": "3,000万円",
+  "sales": "約200億円",
+  "employees": "988名（2025年9月更新）",
+  "pr": "睡眠のトータルソリューションカンパニーとして、独自の技術で寝具を開発。アスリートなどにも愛用されています。",
+  "business": "寝具・クッション材「エアウィーヴ」の製造・販売",
+  "recruit_faculties": "情報なし",
+  "job_description": "総合職、スリープカウンセラー職、商品企画職など",
+  "benefits": "社会保険完備、記念日休暇、睡眠休暇、社員割引・モニター制度（入社3ヶ月後に寝具をプレゼント）、資格取得支援制度",
+  "salary": "大卒：月給210,000円、短大・専門卒：月給200,000円（※販売職、試用期間中の月給）",
+  "homepage": "https://airweave.jp/",
+  "holidays": "年間休日120日（土日祝、夏期・年末年始休暇含む）"
+},
+{
+  "name": "株式会社ゴルフ・ドゥ",
+  "kana": "ゴルフドゥ",
+  "points": "中古ゴルフクラブの買取・販売を主とする「ゴルフ・ドゥ！」の直営店及びフランチャイズチェーンの本部運営",
+  "listed": "名古屋証券取引所 ネクスト市場",
+  "capital": "5億1,583万円",
+  "sales": "59億1,703万円（2025年3月期 連結）",
+  "employees": "126名（2025年3月31日現在 連結）",
+  "pr": "ゴルフ用品のリユース事業を核とし、レッスン事業やリペア事業など、ゴルフライフを総合的にサポートする事業を展開しています。",
+  "business": "中古ゴルフクラブの買取・販売、フランチャイズチェーンの本部運営",
+  "recruit_faculties": "情報なし",
+  "job_description": "ゴルフクラブの販売・買取などの接客、販促企画の考案、店舗レイアウト、スタッフの採用・教育、在庫管理など",
+  "benefits": "社会保険完備、社員持株会、退職金制度（確定拠出年金）、社員独立制度、社員割引購買制度、住宅手当、社員旅行",
+  "salary": "新卒初任給：月給227,000円～（固定残業20時間分含む）",
+  "homepage": "https://www.golfdo.com/",
+  "holidays": "年間休日110日（年間5日の有給取得必須）、シフト制（年間休日105日）、有給休暇、慶弔休暇、特別休暇、産休、育児、介護休暇、看護休暇"
+},
+{
+  "name": "株式会社IDOM",
+  "kana": "イドム",
+  "points": "「ガリバー」ブランドで中古車の買取・販売事業を展開",
+  "listed": "東証プライム",
+  "capital": "41億円（2025年2月28日現在）",
+  "sales": "4,966億円（2025年2月期 連結）",
+  "employees": "4,023名（2025年2月28日現在 連結）",
+  "pr": "中古車循環サイクルを促進し、環境問題にも貢献しています。",
+  "business": "中古車買取事業、中古車小売事業、付帯事業（オートローン、自動車保険等）。",
+  "recruit_faculties": "営業系、ビジネス系、アフターサービス系など",
+  "job_description": "営業職（スマートカーライフプランナー）として、自動車の買取・販売、自動車保険やローン等の金融商品の提案、自動車の査定業務、集客活動、店舗運営業務など",
+  "benefits": "社宅制度、子ども手当、社員割引販売、社会保険完備、交通費支給",
+  "salary": "営業職 初任給：月給230,000円～（学歴共通、試用期間後）",
+  "homepage": "https://221616.com/",
+  "holidays": "年間休日120日（公休108日、ライフサポート休暇7日、有給休暇5日）"
+},
+{
+  "name": "株式会社ミスターマックス・ホールディングス",
+  "kana": "ミスターマックスホールディングス",
+  "points": "ディスカウントストア「MrMax」などを展開する小売グループの持株会社",
+  "listed": "東証プライム",
+  "capital": "102億2,973万8,000円（2025年2月28日現在）",
+  "sales": "1,365億6,900万円（2025年2月期 連結）",
+  "employees": "2,367名（グループ全体、パート・アルバイト含む）",
+  "pr": "地域に根ざしたディスカウントストア「MrMax」を中心に、お客様の生活を豊かにする商品を低価格で提供しています。",
+  "business": "グループ会社の経営管理、ショッピングセンター運営、小売業、卸売業など",
+  "recruit_faculties": "情報システム、バイヤー、商品開発、店舗開発、EC・アプリ推進、DX戦略など",
+  "job_description": "店舗運営（接客、従業員マネジメント、売上・予算管理）、商品の仕入れ、プライベート・ブランド商品の企画・開発、店舗開発、情報システム、マーケティング分析など",
+  "benefits": "社会保険完備、社員持ち株会、退職金制度、住宅補助手当、社宅制度、転居を伴う異動時の引越し費用全額負担制度、資格取得支援制度",
+  "salary": "大卒・院了・高専卒：月給230,000円、短大・専門卒：月給210,000円（総合職の場合）",
+  "homepage": "https://www.mrmax.co.jp/",
+  "holidays": "年間休日113日＋年次有給休暇（年間最低7日取得義務）で年間120日以上"
+},
+
+{
+  "name": "株式会社ロピア",
+  "kana": "ロピア",
+  "points": "「食のテーマパーク」をコンセプトに、高品質な商品を低価格で提供するスーパーマーケット",
+  "listed": "非上場",
+  "capital": "1,000万円",
+  "sales": "5,213億円（2025年2月期 グループ合計）",
+  "employees": "約2,700名（正社員）",
+  "pr": "食肉専門店から始まったスーパーマーケットチェーンで、「食のテーマパーク」をコンセプトに、お客様の食生活を豊かにする商品を提供しています。",
+  "business": "食品スーパーマーケットの運営（精肉、鮮魚、青果、惣菜など）、食肉専門店の運営",
+  "recruit_faculties": "総合職、店舗運営、バイヤー、商品開発、社内SE、経理など",
+  "job_description": "店舗運営（仕入・加工・販売、売場づくり、接客、マネジメント）",
+  "benefits": "社会保険完備、新生活応援5年手当、産休・育休制度、住宅補助手当、お昼代補助、資格取得支援制度",
+  "salary": "大卒初任給：318,000円（総合職）",
+  "homepage": "https://lopia.jp/",
+  "holidays": "年間休日113日（有給休暇取得を合わせると年間120日以上）"
+},
+{
+  "name": "キュービーネット株式会社",
+  "kana": "キュービーネット",
+  "points": "ヘアカット専門店『QBハウス』を国内外に展開する持株会社",
+  "listed": "東証プライム",
+  "capital": "13億7300万円（2025年6月末現在）",
+  "sales": "255億4300万円（2025年6月期 連結）",
+  "employees": "3,066名（連結、2025年6月末現在）",
+  "pr": "「QB House」ブランドで、ヘアカット事業を国内外で展開しています。10分という短時間で高品質なサービスを提供し、顧客満足度を追求しています。",
+  "business": "国内・海外でのヘアカット事業、システム開発・保守・運用",
+  "recruit_faculties": "理容師、美容師、IT戦略部など",
+  "job_description": "ヘアカット、店舗運営、グループ長（IT戦略部）など",
+  "benefits": "社会保険完備、残業手当（1分単位で支給）、交通費全額支給、皆勤手当、地域手当、住宅手当（ライフスタイルサポート制度）、退職金制度、従業員持株制度",
+  "salary": "初任給：東京地区24万5,500円～（基本給、皆勤手当、地域手当含む）",
+  "homepage": "https://www.qbnet.jp/",
+  "holidays": "月7日～10日（選択制）、年間休日120日以上"
+}
+        ]
+      },
+      "maker": {
+        "コンサルティング・シンクタンク": [
+         {
+  name: 'ソーシング・ブラザーズ株式会社',
+  points: '大企業とスタートアップをつなぐイノベーション・プラットフォーマー。CVC支援、スタートアップ採用支援、M&A支援を一気通貫で提供しています。', // 出典: 公式サイト COMPANY / OUR BUSINESS. :contentReference[oaicite:0]{index=0}
+  listed: '未上場（上場準備フェーズにあると報じられています）', // Forbes記事による「上場準備フェーズ」報道／公式では未上場扱い。:contentReference[oaicite:1]{index=1}
+  capital: '¥255,000,000', // 公式：資本金 255百万円（資本準備金含む）。:contentReference[oaicite:2]{index=2}
+  sales: '非公開（上場企業ではないため決算開示は公表されていません）', // 公式ページに売上の公開データなし。:contentReference[oaicite:3]{index=3}
+  employees: '60名（公式掲載の従業員数）', // 公式：従業員数 60。:contentReference[oaicite:4]{index=4}
+  pr: 'スタートアップとイノベーションを共に創出するコンサルティングファームです。',
+  business: 'CVCキャピタリスト業務、M&A支援、コンサルティング。',
+  recruit_faculties: '大学院・大学卒以上（文系・理系問わず募集、職種により条件が示されます）', // 採用情報・求人票に「大学院・大学卒以上」との記載あり。:contentReference[oaicite:5]{index=5}
+  job_description: 'CVCキャピタリスト、バックオフィス業務、M&Aコンサルタント',
+  benefits: '社会保険完備、通勤手当（上限25,000円/月）、定期健康診断、住居手当（支給条件あり）、各種手当・制度（昇給・賞与等）。', // 求人票・求人サイトの待遇欄を参照。:contentReference[oaicite:6]{index=6}
+  salary: '想定年収：職種・経験により幅あり（例：約420万円～800万円レンジの掲載例あり。職種・経験で変動）', // 複数求人掲載の例を参考にした想定レンジ（求人ごとに記載差あり）。:contentReference[oaicite:7]{index=7}
+  homepage: 'https://sourcing-brothers.com/',
+  holidays: '完全週休2日制（土日祝）、年間休日120日以上、年末年始、夏季、有給、慶弔休暇 等（求人情報に基づく）' // 求人情報に「年間休日120日以上、完全週休2日制」等の記載あり。:contentReference[oaicite:8]{index=8}
+}
+,
+{
+  name: 'ソーシング・ブラザーズ株式会社',
+  points: '大企業とスタートアップをつなぐイノベーション・プラットフォーマー。CVC支援、スタートアップ採用支援、M&A支援を一気通貫で提供しています。', // 出典: 公式サイト COMPANY / OUR BUSINESS. :contentReference[oaicite:0]{index=0}
+  listed: '未上場（上場準備フェーズにあると報じられています）', // Forbes記事による「上場準備フェーズ」報道／公式では未上場扱い。:contentReference[oaicite:1]{index=1}
+  capital: '¥255,000,000', // 公式：資本金 255百万円（資本準備金含む）。:contentReference[oaicite:2]{index=2}
+  sales: '非公開（上場企業ではないため決算開示は公表されていません）', // 公式ページに売上の公開データなし。:contentReference[oaicite:3]{index=3}
+  employees: '60名（公式掲載の従業員数）', // 公式：従業員数 60。:contentReference[oaicite:4]{index=4}
+  pr: 'スタートアップとイノベーションを共に創出するコンサルティングファームです。',
+  business: 'CVCキャピタリスト業務、M&A支援、コンサルティング。',
+  recruit_faculties: '大学院・大学卒以上（文系・理系問わず募集、職種により条件が示されます）', // 採用情報・求人票に「大学院・大学卒以上」との記載あり。:contentReference[oaicite:5]{index=5}
+  job_description: 'CVCキャピタリスト、バックオフィス業務、M&Aコンサルタント',
+  benefits: '社会保険完備、通勤手当（上限25,000円/月）、定期健康診断、住居手当（支給条件あり）、各種手当・制度（昇給・賞与等）。', // 求人票・求人サイトの待遇欄を参照。:contentReference[oaicite:6]{index=6}
+  salary: '想定年収：職種・経験により幅あり（例：約420万円～800万円レンジの掲載例あり。職種・経験で変動）', // 複数求人掲載の例を参考にした想定レンジ（求人ごとに記載差あり）。:contentReference[oaicite:7]{index=7}
+  homepage: 'https://sourcing-brothers.com/',
+  holidays: '完全週休2日制（土日祝）、年間休日120日以上、年末年始、夏季、有給、慶弔休暇 等（求人情報に基づく）' // 求人情報に「年間休日120日以上、完全週休2日制」等の記載あり。:contentReference[oaicite:8]{index=8}
+},
+{
+  id: 'style-edge',
+  mainCategory: 'service',
+  subCategory: 'service-consulting',
+  kana: 'スタイルエッジ',
+  name: '株式会社スタイル・エッジ',
+  points: '士業・医業の専門家を対象とした総合支援プラットフォーム事業を提供。インフラ支援、マーケティング、システム開発、コンサルティングを柱に、多角的な支援を行っています。', 
+  listed: '未上場',
+  capital: '¥30,000,000', // 資本金 3,000万円 :contentReference[oaicite:3]{index=3}
+  sales: '非公開（公式には開示されていません）',
+  employees: '450名（アルバイト含む、2025年6月時点）', // 採用ページより従業員数記載あり :contentReference[oaicite:4]{index=4}
+  pr: '専門家（弁護士・司法書士・医師等）の業務に集中できるよう、経営・集客・ITなどのバックオフィス支援をワンストップで提供する企業です。',
+  business: '士業・医業等プロフェッショナル向け支援（インフラ支援、マーケティング支援、システム開発、コンサルティング）', // doda 掲載情報より :contentReference[oaicite:5]{index=5}
+  recruit_faculties: '大学卒以上（詳細は職種・募集要件による）', // 特定の文言がないため一般的募集要件を仮定
+  job_description: 'コンサルタント、マーケティング支援、システム開発、バックオフィス支援 等', 
+  benefits: '各種社会保険完備、交通費支給（上限 30,000円/月 等）、住宅手当、子ども手当、退職金制度（確定拠出年金制度）、社内託児所制度、社内マッサージ等', // HRMOS 採用情報より :contentReference[oaicite:6]{index=6}、福利厚生紹介 :contentReference[oaicite:7]{index=7}
+  salary: '非公開（求人例では月給例 30万円～34万円、賞与年2回 等の記載あり）', // マイナビ求人例より :contentReference[oaicite:8]{index=8}
+  homepage: 'https://styleedge.co.jp/',
+  holidays: '完全週休2日制（土日祝）、夏季休暇、年末年始、有給休暇、特別休暇 等（求人情報に「年休124日」等の記載あり）' // 求人情報に年休124日の記載あり :contentReference[oaicite:9]{index=9}
+},
+{
+  id: 'active-and-company',
+  mainCategory: 'service',
+  subCategory: 'service-consulting',
+  kana: 'アクティブアンドカンパニー',
+  name: '株式会社アクティブアンドカンパニー',
+  points: '組織開発・人材開発とHRテック（「サイレコ」など）を軸に、企業の組織・人事ソリューションをワンストップで提供する強みがあります。',
+  listed: '未上場',
+  capital: '¥99,980,000', // ※資本金 9,998万円（資本準備金 1億3,304万円） :contentReference[oaicite:0]{index=0}
+  sales: '非公開',
+  employees: '65名（グループ全体では 101名 見込み）', // 中途転職サイト情報より従業員数 65名（グループ全体） :contentReference[oaicite:1]{index=1}
+  pr: 'HR テックと組織コンサルティングを融合し、事業成長を人の側面から支える企業です。',
+  business: '組織・人事コンサルティング、奨学金返済支援事業、研修／教育、人材育成、HR オートメーションシステム「サイレコ」の開発・運用、有料職業紹介事業 等', // 会社概要に記載された複数事業 :contentReference[oaicite:2]{index=2}
+  recruit_faculties: '大学卒以上（詳細は募集要件による）', // 明確なファカルティ限定記載なし
+  job_description: '人事制度コンサルタント、組織開発コンサルタント、HR テック導入支援、研修企画運営 等',
+  benefits: '各種社会保険、交通費支給、研修制度、退職金制度、奨学金返済支援制度 等', // 社員向け制度として奨学金返済支援が明示されている :contentReference[oaicite:3]{index=3}
+  salary: '非公開（公開求人情報では具体年収例の記載は確認できません）',
+  homepage: 'https://www.aand.co.jp/',
+  holidays: '完全週休2日制（土日祝）、年末年始休暇、夏季休暇、有給休暇、特別休暇 等' // 休日体系の一般的表記で補填（公式に年休数の明記は確認できず）
+},
+{
+  id: 'peees',
+  mainCategory: 'service',
+  subCategory: 'service-consulting',
+  kana: 'ピーエス',
+  name: '株式会社PEEES',
+  points: 'オフィスインフラ（通信・OA機器・セキュリティ）と Web 制作を組み合わせ、顧客のオフィス環境・業務効率化を支援する総合オフィスソリューション企業です。',
+  listed: '未上場',
+  capital: '¥20,000,000', // 資本金 2,000万円 :contentReference[oaicite:4]{index=4}
+  sales: '非公開',
+  employees: '136名（アルバイト含む）', // 会社概要に記載あり :contentReference[oaicite:5]{index=5}
+  pr: 'オフィス周りの通信・インフラから Web 制作・セキュリティ、コスト削減までを包括的に支援します。',
+  business: 'オフィスコンサルティング事業、OA・ネットワーク機器サービス、通信サービス、セキュリティサービス、Web 制作 等', // 会社概要に記載された事業内容 :contentReference[oaicite:6]{index=6}
+  recruit_faculties: '大学卒以上（募集要件により変動）', // 特定学部指定は公表されていません
+  job_description: '営業、コンサルタント、インフラ担当、Web 制作、セキュリティエンジニア 等',
+  benefits: '社会保険完備、交通費支給、他制度あり（詳細は求人募集要項による）',
+  salary: '非公開（求人例による具体数値は公表されていません）',
+  homepage: 'https://www.peees.co.jp/',
+  holidays: '完全週休2日制（土日祝）、年末年始、夏季、有給、特別休暇 等' // 休日体系の基本形を記載（公式に日数明記なし）
+}
+
+
+        ],
+        "エネルギー・プラント": [
+          {
+  id: 'esco',
+  mainCategory: 'maker',
+  subCategory: 'maker-energy',
+  kana: 'エスコ',
+  name: '株式会社エスコ',
+  points: '独自の電子ブレーカー等の省エネソリューションを核に、設備更新・運用・保守、環境・CO₂削減コンサルティングを一気通貫で提供する企業です。',
+  listed: '未上場',
+  capital: '¥100,000,000',  // 資本金 1億円（会社概要より） :contentReference[oaicite:0]{index=0}
+  sales: '¥6,058,000,000（売上高参考値・求人サイト掲載）',  // 建職バンクの掲載データより :contentReference[oaicite:1]{index=1}
+  employees: '176名（参考・求人系データ）',  // 建職バンクより従業員数 176 名 :contentReference[oaicite:2]{index=2}  
+  pr: 'お客様のエネルギーコスト最適化を目的に、省エネ診断から設計施工、運用・保守まで一気通貫で提供。電子ブレーカーや高圧設備保安点検を強みに、施設の省エネ・コスト削減に貢献します。',
+  business: '省エネ・省コスト製品・サービスの導入／運用／保守、キュービクル（高圧受変電設備）保安点検、電気設備工事、設備更新・改修工事、環境・CO₂削減コンサルティング 等',  // 会社概要に記載の主業務 :contentReference[oaicite:3]{index=3}
+  recruit_faculties: '大学卒以上（職種・募集要件により異なる）',  // 明確な学部条件の記載は確認できず、一般的な記載を仮定
+  job_description: '営業（提案営業）、施工管理、保守・点検、設計、コンサルティング 等',  // 求人例から複数業務を想定 :contentReference[oaicite:4]{index=4}
+  benefits: '社会保険完備、時短制度、出産・育児支援制度、資格取得支援制度、研修制度 等',  // マイナビ転職の福利厚生欄より :contentReference[oaicite:5]{index=5}
+  salary: '年間初年度想定年収：380万円～550万円（営業職の求人例より）',  // 求人例掲載の年収レンジ :contentReference[oaicite:6]{index=6}
+  homepage: 'https://www.esco-co.jp/',
+  holidays: '年間休日125日（完全週休2日制／土日祝、夏季休暇、年末年始、他）',  // 求人例より「年休125日」の記載を確認 :contentReference[oaicite:7]{index=7}
+}
+,
+{
+  id: 'nisshin-shoji',
+  mainCategory: 'maker',
+  subCategory: 'maker-energy',
+  kana: 'ニッシンショウジ',
+  name: '日新商事株式会社',
+  points: '石油製品販売を基軸としながら、再生可能エネルギー・バイオマス燃料事業にも注力。',  
+  listed: '東証スタンダード',  
+  capital: '¥3,624,000,000',  // 資本金 362億4,000万円（企業概要） :contentReference[oaicite:2]{index=2}  
+  sales: '¥33,882,000,000（2025年3月期 個別売上）',  // 2025年3月期 個別売上高 338億820万円（マイナビより） :contentReference[oaicite:3]{index=3}  
+  employees: '344名（単体、2025年3月末）／379名（連結）',  // 企業概要より :contentReference[oaicite:4]{index=4}  
+  pr: '再生可能エネルギー、石油製品販売、不動産など多角化した事業ポートフォリオを持ち、安定性と成長性を兼ね備えたエネルギー商社です。',  
+  business: '再生可能エネルギー（バイオマス発電燃料・売電）、石油製品販売、サービスステーションの運営・支援、機能化学品販売、不動産賃貸 等。',  // 企業概要より :contentReference[oaicite:5]{index=5}  
+  recruit_faculties: '—',  
+  job_description: '総務、法務、営業、企画 等',  
+  benefits: '年間休日120日以上 等',  
+  salary: '月給 ¥322,500 ～ （という求人例あり）',  
+  homepage: 'https://www.nissho-shoji.co.jp/',  
+  holidays: '年間休日120日以上'
+},
+{
+  id: 'tominaga',
+  mainCategory: 'maker',
+  subCategory: 'maker-energy',
+  kana: 'トミナガ',
+  name: '株式会社トミナガ',
+  points: '給油設備、計量器、燃料関連設備の設計・施工・保守を一貫して手がける専門メーカー。',  
+  listed: '未上場',
+  capital: '¥54,000,000',  // 払込済資本金 5,400万円（授権資本 1億2,000万円） :contentReference[oaicite:0]{index=0}  
+  sales: '非公開',
+  employees: '233名（男子 181名、女子 52名、合計 233名）',  // 会社概要より :contentReference[oaicite:1]{index=1}  
+  pr: 'ガソリンスタンドから船舶給油まで、燃料供給インフラを支える機器とサービスで強みを発揮します。',
+  business: '燃料油給油機器・計量器の製造販売、給油所設備設計施工、保守・点検、不動産事業等。',  // 会社概要より :contentReference[oaicite:2]{index=2}  
+  recruit_faculties: '非公開',
+  job_description: '各種技術職、営業、保守メンテナンス 等',
+  benefits: '非公開',
+  salary: '非公開',
+  homepage: 'https://www.kyoto-tmc.co.jp/',  // 給油機器メーカートミナガの公式ページ :contentReference[oaicite:3]{index=3}  
+  holidays: '非公開'
+},
+{
+  id: 'nittetsu-kankyo-energy-solution',
+  mainCategory: 'maker',
+  subCategory: 'maker-energy',
+  kana: 'ニッテツカンキョウエネルギーソリューション',
+  name: '日鉄環境エネルギーソリューション株式会社',
+  points: '環境インフラと発電施設の運転・管理・保全を主軸に、資源循環型社会を支える技術基盤を提供。',  
+  listed: '未上場（製鉄グループ会社）',
+  capital: '¥50,000,000',  // 資本金 5,000万円 :contentReference[oaicite:4]{index=4}  
+  sales: '¥45,300,000,000 （2024年3月期）',  // 売上高 453億円（求人情報サイトより） :contentReference[oaicite:5]{index=5}  
+  employees: '約1,900名',  // 従業員数 約1,900名 :contentReference[oaicite:6]{index=6}  
+  pr: '廃棄物処理・資源化施設、発電施設の維持管理で社会インフラを支え、SDGs を実現する企業。',  
+  business: '廃棄物処理・資源化施設の運営・管理、エネルギー生産施設の運転・保守、設計・施工・監理、コンサルタント業務 等。',  // 会社概要より :contentReference[oaicite:7]{index=7}  
+  recruit_faculties: '非公開',
+  job_description: '運転技術者、設備保全、プロジェクト管理 等',
+  benefits: '福利厚生制度、借上社宅、研修制度 等（求人情報で一部制度記載あり）',  // マイナビ採用紹介に制度記載あり :contentReference[oaicite:8]{index=8}  
+  salary: '非公開',
+  homepage: 'https://www.nses.nipponsteel.com/',
+  holidays: '年間休日・休暇制度あり（詳細非公表）'
+},
+{
+  id: 'tanabe-kogyo',
+  mainCategory: 'maker',
+  subCategory: 'maker-energy',
+  kana: 'タナベコウギョウ',
+  name: '田邊工業株式会社',
+  points: 'ガス事業を主軸に、LP ガス供給・設備・機器・材料の販売・保守を行う総合ガス企業。',  
+  listed: '未上場',  
+  capital: '非公開',  
+  sales: '非公開',  
+  employees: '非公開',  
+  pr: 'ガス分野に特化して、地域社会と産業界に不可欠なエネルギー・インフラを支える企業です。',
+  business: 'LP ガス・産業ガス・関連設備・機器・材料の販売・設計・施工・保守 等。',  // 会社概要より :contentReference[oaicite:9]{index=9}  
+  recruit_faculties: '非公開',
+  job_description: 'ガス設備技術、営業、保守管理 等',
+  benefits: '非公開',
+  salary: '非公開',
+  homepage: 'https://tanabe-kogyo.co.jp/',
+  holidays: '非公開'
+}
+
+        ],
+        "機械・電気・電子機器・その他部品": [
+           {
+  id: 'zimmer-biomet',
+  mainCategory: 'maker',
+  subCategory: 'maker-machine',
+  kana: 'ジンマーバイオメット',
+  name: 'ジンマー・バイオメット合同会社',
+  points: '整形外科領域での技術力と製品拡充を背景に、国内における医療機器導入・サービス提供を強化する存在。',  
+  listed: '非上場（日本法人）',  
+  capital: '資本金 23億1千万円',  // 資本金 23億1千万円（会社概要より） :contentReference[oaicite:0]{index=0}  
+  sales: '718億円2021年実績・国内売上例）',  // マイナビの掲載データより（2021年12月実績） :contentReference[oaicite:1]{index=1}  
+  employees: '824名（2024年11月時点）',  // 会社概要より :contentReference[oaicite:2]{index=2}  
+  pr: '世界的整形外科医療機器メーカーの日本法人として、人工関節や骨接合材料などを通じて、患者のQOL（生活の質）向上に貢献します。',  
+  business: '整形外科向け医療機器・器械の製造・輸入・販売、関連ソリューション提供',  // 会社概要に沿う記載 :contentReference[oaicite:3]{index=3}  
+  recruit_faculties: '大学卒以上（詳細は募集要件による）',  // 採用情報に具体学部限定記載見つからず  
+  job_description: '営業、物流・管理（オペレーション）、技術・マーケティング 等',  // 求人募集例・会社概要方向から予測  
+  benefits: '社会保険、退職金制度、各種手当、研修制度 等',  // doda掲載情報に福利厚生例あり :contentReference[oaicite:4]{index=4}  
+  salary: '非公開（公開求人例で具体年収記載なし）',  
+  homepage: 'https://www.zimmerbiomet.co.jp/',
+  holidays: '—'  // 年間休日等公表なし（求人例等で記載があれば補填可能）
+},
+{
+  id: 'mitsubishi-cable-industries',
+  mainCategory: 'maker',
+  subCategory: 'maker-machine',
+  kana: 'ミツビシデンセンコウギョウ',
+  name: '三菱電線工業株式会社',
+  points: 'ケーブル・シール製品を中心に、インフラ・産業用途など多様な分野に技術展開。',  
+  listed: '未上場',  
+  capital: '80億円',  // 資本金 80億円（8000百万円） :contentReference[oaicite:5]{index=5}  
+  sales: '1444億1,000万円（2025年3月期）',  // 売上高 1,444億1,000万円 → 144,410百万円相当（会社案内） :contentReference[oaicite:6]{index=6}  
+  employees: '542名（2025年3月31日現在）',  // 会社案内より :contentReference[oaicite:7]{index=7}  
+  pr: '金属シール・ケーブル技術を中核に、環境変化・社会インフラのニーズに応える製品開発型メーカーです。',  
+  business: 'シール製品および高機能素材の開発・製造・販売、電線・ケーブル技術の応用製品提供 等',  // 会社案内の事業内容から抜粋 :contentReference[oaicite:8]{index=8}  
+  recruit_faculties: '大学卒以上（詳細は募集要件による）',  
+  job_description: '製品設計、開発、生産設備設計、品質保証 等',  
+  benefits: '社会保険、福利厚生制度、研修制度 等',  
+  salary: '非公開',  
+  homepage: 'https://www.mitsubishi-cable.co.jp/',
+  holidays: '—'
+},
+  
+{
+  id: 'nemy',
+  mainCategory: 'maker',
+  subCategory: 'maker-machine',
+  kana: 'ネミー',
+  name: 'ネミー株式会社',
+  points: '空調・産業機器の架台メーカーとして、近年は太陽光架台・防振・防音システムにも進出、快適環境提案企業へシフト中です。',
+  listed: '未上場',
+  capital: '2000万円',  // 資本金 2,000万円（会社概要より） :contentReference[oaicite:0]{index=0}
+  sales: '非公開',  // 公開された正確な売上高は見つかりませんでした
+  employees: 'グループ総勢155名（2024年2月現在）',  // 会社概要より :contentReference[oaicite:1]{index=1}
+  pr: '快適空間を創造する価値提供型メーカーとして、従来の架台製造にとどまらず、太陽光関連システム・防振・防音・新エネルギー装置まで事業を拡張しています。',
+  business: '空調・産業機器架台の企画・製造・販売、防振システム、防音・防雪架台、太陽光発電モジュール架台、新エネルギーシステム企画・販売、コンサルティング 等',  // 会社概要より :contentReference[oaicite:2]{index=2}
+  recruit_faculties: '大学卒以上（詳細は募集要件による）',  // 学部指定等は公表されていません
+  job_description: '設計、生産、品質管理、営業、施工管理、システム部門 等',  // 求人欄から複数職種例が確認されます :contentReference[oaicite:3]{index=3}
+  benefits: '通勤手当、家族手当、住宅手当、各種社会保険、育児休業制度、研修制度 等',  // “福利厚生例”として求人情報に記載あり :contentReference[oaicite:4]{index=4}
+  salary: '非公開（求人例による年収例は公表されていません）',  
+  homepage: 'https://nemy.co.jp/',
+  holidays: '年間休日123日、完全週休2日制（土日祝）など（求人例より）',  // 平均残業月12時間、年休123日の記載あり :contentReference[oaicite:5]{index=5}
+}
+,
+{
+  id: 'iwaki',
+  mainCategory: 'maker',
+  subCategory: 'maker-machine',
+  kana: 'イワキ',
+  name: '株式会社イワキ',
+  points: '首都圏を中心にメガネ・コンタクト・補聴器等を専門販売。品質と店頭接客で信頼を築く眼鏡小売チェーン企業です。',
+  listed: '未上場',
+  capital: '5,000万円',  // 資本金 5,000万円（会社概要／採用サイトより） :contentReference[oaicite:6]{index=6}
+  sales: '54億2300万円（2024年9月期実績）',  // 54億2,300万円（採用データより） :contentReference[oaicite:7]{index=7}
+  employees: '302名（2024年時点）',  // 男性 148名、女性 154名、合計 302名（採用情報より） :contentReference[oaicite:8]{index=8}
+  pr: '「イワキのメガネなら安心です」を理念に、眼鏡を通じたライフスタイル提案とアフターメンテナンスを重視する専門店スタイルで展開。',  
+  business: '眼鏡・コンタクトレンズ・補聴器・光学品の販売、眼鏡フレーム製造・卸 等',  // 採用・企業情報より :contentReference[oaicite:9]{index=9}
+  recruit_faculties: '大学卒以上（詳細は募集要件による）',  
+  job_description: 'コンサルティングセールス（眼鏡・コンタクト販売）、店舗運営、アフターメンテナンス 等',  // 採用情報で “コンサルティングセールス” の記載あり :contentReference[oaicite:10]{index=10}
+  benefits: '社会保険、交通費支給、研修制度、福利厚生制度 等',  
+  salary: '非公開（求人情報で具体年収例の記載は見つかりませんでした）',  
+  homepage: 'https://www.iwakioptic.co.jp/',
+  holidays: '完全週休2日制（土日祝）、年末年始休暇、有給休暇 等（採用情報ベース）'  // 採用サイトに休日体系の言及あり :contentReference[oaicite:11]{index=11}
+}
+,
+{
+  "id": "nakagawa-seisakusho",
+  "mainCategory": "maker",
+  "subCategory": "maker-machine",
+  "kana": "ナカガワセイサクショ",
+  "name": "株式会社中川製作所",
+  "points": "OA用紙、インクジェットメディアなど、プリントメディアの開発・製造・販売を行う",
+  "listed": "非上場",
+  "capital": "2,000万円",
+  "sales": "165億円（2025年3月期 グループ合算）",
+  "employees": "367人",
+  "pr": "1939年の創業以来、一貫して『印刷』に携わってきた企業です。紙製品の製造、プリンター関連製品の販売、高品質なデジタルプリントサービスを提供しています。",
+  "business": "プリントメディア（OA用紙、インクジェットメディアなど）の開発・製造・販売、プリンターおよび関連消耗品の販売・サポート、高品質デジタルプリントサービス",
+  "recruit_faculties": "メーカー営業職、メーカー技術開発職、製造職",
+  "job_description": "営業（顧客ニーズのヒアリング、製品の企画・提案）、技術開発（製品開発、生産工程の改善）、製造",
+  "benefits": "社会保険完備、財形預金、従業員持株会、退職金制度、ベネフィット・ワンなどの福利厚生サービス",
+  "salary": "月給20万円〜23万円（生産技術スタッフの例）",
+  "homepage": "https://www.n-ss.co.jp/",
+  "holidays": "年間休日125日（完全週休2日制、年末年始、夏季、GWなど）"
+},
+   
+{
+  "id": "keiyo-seisa",
+  "mainCategory": "maker",
+  "subCategory": "maker-machine",
+  "kana": "ケイヤクセイサ",
+  "name": "京葉製鎖株式会社",
+  "points": "自動車用タイヤチェーンの製造を手掛け、「鎖一筋」で業界トップレベルのシェアを誇ります。",
+  "listed": "非上場",
+  "capital": "3,075万円",
+  "sales": "10.6億円（2024年4月期）",
+  "employees": "32名（2024年4月末）",
+  "pr": "自動車用タイヤチェーンの製造を手掛け、「鎖一筋」で業界トップレベルのシェアを誇ります。",
+  "business": "自動車用タイヤチェーン、建築関連チェーン、林業関連チェーン、土木関連チェーン、船舶関連チェーンなどの製造・販売",
+  "recruit_faculties": "営業職、製造職、設備保守・メンテナンススタッフ、経理総務",
+  "job_description": "金属加工、溶接、溶断、曲げ加工、生産設備や機械の保守・メンテナンス、経理総務",
+  "benefits": "社会保険完備、退職金制度、厚生年金基金、借り上げ社宅制度、再雇用制度（70歳まで）、皆勤手当、家族手当、資格手当、交通費全額支給",
+  "salary": "月給20万円～25万円（製造スタッフの例）",
+  "homepage": "https://www.keiyo-seisa.co.jp/",
+  "holidays": "年間休日128日（完全週休2日制：土・日、祝日、夏季、冬季休暇）"
+},         
+        ],
+        "食品・化学・薬品・繊維": [
+          {
+  "id": "hikari-miso",
+  "mainCategory": "maker",
+  "subCategory": "maker-food",
+  "kana": "ヒカリミソ",
+  "name": "ひかり味噌株式会社",
+  "points": "無添加・有機味噌を中心に、安心安全で高品質な味噌づくりを行っており、業界トップクラスの売上を誇ります。",
+  "listed": "非上場",
+  "capital": "1億1000万円（グループ合計）",
+  "sales": "215億円（2024年9月期 連結）",
+  "employees": "309名（2024年9月現在／グループ合計）",
+  "pr": "無添加・有機味噌を中心に、安心安全で高品質な味噌づくりを行っています。",
+  "business": "味噌、即席みそ汁、スープ、食品などの製造・販売。",
+  "recruit_faculties": "営業、商品企画・マーケティング、品質管理、製造、醸造研究など",
+  "job_description": "生産設備のメンテナンス、品質管理、製造ライン構築、営業、商品企画・マーケティング、経理など",
+  "benefits": "社会保険完備、退職金制度、確定拠出年金、財形貯蓄、リフレッシュ補助金制度（旅行費用の一部負担）、家賃補助（年齢制限あり）",
+  "salary": "初任給：約23万円〜（職種・地域による）",
+  "homepage": "https://www.hikarimiso.co.jp/",
+  "holidays": "年間休日123日（完全週休2日制、年末年始、GW、夏季休暇）"
+},
+{
+  "name": "株式会社プレコフーズ",
+  "kana": "プレコフーズ",
+  "points": "外食産業向け業務用食材の総合卸売",
+  "listed": "非上場",
+  "capital": "1億3,125万円",
+  "sales": "548億円（2025年3月期）",
+  "employees": "約2,000名（グループ全体）",
+  "pr": "食肉、鮮魚、野菜など、外食産業向けの業務用食材を専門に扱う総合卸売業者です。新鮮で高品質な食材を、首都圏を中心に幅広く提供しています。",
+  "business": "食肉、鮮魚、青果などの業務用食材卸売、食肉加工、生鮮・冷凍食品、食肉、鮮魚、青果の製造・加工",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業職、配送職、食肉・鮮魚加工職、システム職",
+  "benefits": "社会保険完備、交通費支給、社員旅行、従業員持株会、住宅手当、家族手当、退職金制度",
+  "salary": "大卒初任給：250,000円（総合職）",
+  "homepage": "https://www.precofoods.co.jp/",
+  "holidays": "年間休日110日（週休2日制、日曜日・水曜日休み）"
+},
+{
+  "name": "株式会社ファーマインド",
+  "kana": "ファーマインド",
+  "points": "青果流通業界において全国規模のコールドチェーンを構築し、青果物の安定供給と鮮度保持を実現",
+  "listed": "非上場",
+  "capital": "10億円",
+  "sales": "2,467億円（2025年3月期）",
+  "employees": "約2,500名（グループ全体、2025年4月現在）",
+  "pr": "生産者から消費者まで、青果物の流通全体を支えるリーディングカンパニーです。独自の物流システムを構築し、安心・安全な青果物を安定的に提供しています。",
+  "business": "青果物（バナナ、アボカド、カットフルーツなど）の輸入、加工、卸売、流通、販売",
+  "recruit_faculties": "情報なし",
+  "job_description": "総合職、生産技術職、営業職、品質管理職",
+  "benefits": "社会保険完備、住宅手当、家族手当、単身赴任手当、退職金制度、従業員持株会、リゾート施設優待",
+  "salary": "大卒初任給：227,000円（2025年4月実績）",
+  "homepage": "https://www.farmind.co.jp/",
+  "holidays": "年間休日115日、完全週休2日制（土日）、有給休暇、慶弔休暇"
+},
+{
+  "name": "株式会社アデランス",
+  "kana": "アデランス",
+  "points": "ウィッグ・増毛、育毛・ヘアケア関連商品の開発・製造・販売、毛髪関連サービス",
+  "listed": "非上場（親会社：株式会社アデランスホールディングスが東証プライムに上場）",
+  "capital": "1億円",
+  "sales": "681億円（2025年2月期）",
+  "employees": "約3,000名（連結、2025年2月期）",
+  "pr": "総合毛髪関連事業のリーディングカンパニーとして、ウィッグや増毛、育毛・ヘアケア関連商品の開発・製造・販売、毛髪関連サービスを提供しています。",
+  "business": "総合毛髪関連事業（ウィッグ・増毛、育毛・ヘアケア商品、その他毛髪関連サービス）",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業職、店舗運営職、ヘアデザイナー職、技術職、企画・管理部門職",
+  "benefits": "社会保険完備、従業員持株会、退職金制度、財形貯蓄、社員割引制度、慶弔見舞金、リゾートホテル割引利用",
+  "salary": "大卒初任給：227,000円（総合職、地域により変動）",
+  "homepage": "https://www.aderans.co.jp/",
+  "holidays": "年間休日115日（月8～9日休み、シフト制）、年次有給休暇、特別休暇"
+},
+{
+  "name": "ウム･ヴェルト株式会社",
+  "kana": "ウムヴェルト",
+  "points": "廃棄物を資源として再利用する「静脈産業」のリーディングカンパニー",
+  "listed": "非上場",
+  "capital": "1,000万円",
+  "sales": "25億円（2025年6月期）",
+  "employees": "118名（グループ全体、2025年6月現在）",
+  "pr": "「環境」を意味する社名（ドイツ語）の通り、産業廃棄物処理業を主体とし、食品リサイクルや農業にも取り組んでいます。廃棄物を単なるゴミとしてではなく、資源として捉え、循環型社会の実現に貢献しています。",
+  "business": "産業廃棄物処理業、食品リサイクル業、農業、道の駅運営。",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業職、事務職、現場管理職、施設運営職など",
+  "benefits": "社会保険完備、資格取得支援制度、誕生日休暇、従業員持株会、住宅手当、家族手当",
+  "salary": "大卒初任給：220,000円（2025年4月実績）",
+  "homepage": "http://www.um-welt.co.jp/",
+  "holidays": "年間休日115日（週休2日制、シフト制）、有給休暇、慶弔休暇、誕生日休暇"
+}
+        ]
+      },
+      "finance": {
+        "銀行・証券": [
+          {
+  "name": "株式会社Japan Asset Management",
+  "kana": "ジャパンアセットマネジメント",
+  "points": "証券、保険、不動産など、金融商品をワンストップで提供するプラットフォーム",
+  "listed": "非上場",
+  "capital": "1億円",
+  "sales": "62.4億円（2025年1月期）",
+  "employees": "1,038名（2025年4月1日現在、グループ全体）",
+  "pr": "証券、保険、不動産など、商品カテゴリーの垣根を超えた金融サービスをワンストップで提供しています。お客様の人生に寄り添う、総合的な資産運用アドバイザー集団です。",
+  "business": "資産運用等のご提案、営業企画。金融商品の販売仲介事業、不動産事業、M&A事業など",
+  "recruit_faculties": "学部学科不問",
+  "job_description": "資産運用アドバイザー、営業企画",
+  "benefits": "社会保険完備、交通費支給（上限あり）、社員持株会、確定拠出年金、資格取得支援制度（証券アナリストなど）、住宅手当、役職手当",
+  "salary": "初任給：30万円（総合職）",
+  "homepage": "https://www.japan-asset-management.com/",
+  "holidays": "完全週休2日制（土日）、祝日、年末年始休暇、年次有給休暇、慶弔休暇"
+},
+         {
+  "id": "money-square",
+  "mainCategory": "finance",
+  "subCategory": "finance-securities",
+  "kana": "マネースクエア",
+  "name": "株式会社マネースクエア",
+  "points": "FX自動売買システム『トラリピ®』を開発・提供",
+  "listed": "非上場",
+  "capital": "5億円",
+  "sales": "62.4億円（2024年12月期 営業収益）",
+  "employees": "約130名",
+  "pr": "FX・CFDサービスを提供し、独自の自動売買システム『トラリピ®』でお客様の資産運用をサポートしています。投資教育にも力を入れています。",
+  "business": "FX・CFD取引サービス、資産運用サービスの開発・提供、金融商品の企画・販売",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業、企画、マーケティング、システム開発、カスタマーサポート、経理・総務など",
+  "benefits": "社会保険完備、従業員持株会、退職金制度、財形貯蓄制度、カフェテリアプラン、資格取得支援制度",
+  "salary": "大卒初任給：(ホームページで確認・職種により違いあり）",
+  "homepage": "https://www.m2j.co.jp/",
+  "holidays": "年間休日120日以上、完全週休2日制（土日）、祝日、年末年始休暇"
+}
+        ],
+        "生命保険・損害保険": [
+        {
+  "name": "さくら損害保険株式会社",
+  "kana": "サクラソンガイホケン",
+  "points": "新規事業の立案・実行に注力、損害保険代理店事業",
+  "listed": "非上場",
+  "capital": "1,000万円",
+  "sales": "情報なし",
+  "employees": "約50名（2025年10月1日時点）",
+  "pr": "損害保険の販売だけでなく、データ分析を基にした事業戦略の立案や新規事業の開拓も積極的に行っています。多様化するお客様のニーズに応えるべく、常に新しい挑戦を続けています。",
+  "business": "損害保険代理店事業、新規事業の企画・実行。",
+  "recruit_faculties": "情報なし",
+  "job_description": "総合職（新規パートナー開拓、データ分析、業務推進など）",
+  "benefits": "社会保険完備、交通費全額支給、資格取得支援制度、退職金制度",
+  "salary": "大卒初任給：250,000円（総合職）",
+  "homepage": "https://www.sakura-hoken.co.jp/",
+  "holidays": "年間休日120日以上、完全週休2日制（土日）、祝日、年末年始休暇"
+},
+
+          {
+  "id": "united-insurance",
+  "mainCategory": "finance",
+  "subCategory": "finance-insurance",
+  "kana": "ユナイテッド・インシュアランス",
+  "name": "ユナイテッド・インシュアランス株式会社",
+  "points": "複数の保険会社の代理店として、顧客に最適な保険を提案",
+  "listed": "非上場",
+  "capital": "1,000万円",
+  "sales": "情報なし",
+  "employees": "約50名（2025年10月1日時点）",
+  "pr": "生命保険、損害保険など、複数の保険会社の代理店として、お客様一人ひとりに最適な保険商品を提案しています。法人・個人のリスクマネジメントをサポートする保険のプロフェッショナル集団です。",
+  "business": "保険代理店事業",
+  "recruit_faculties": "情報なし",
+  "job_description": "保険営業",
+  "benefits": "社会保険完備、交通費全額支給、資格取得支援制度、退職金制度",
+  "salary": "月給250,000円〜",
+  "homepage": "https://united-ins.co.jp/recruit/",
+  "holidays": "完全週休2日制（土日）、祝日、年末年始休暇、年次有給休暇"
+},
+         {
+  "id": "nhs",
+  "mainCategory": "finance",
+  "subCategory": "finance-insurance",
+  "kana": "エヌエイチエス",
+  "name": "株式会社NHS",
+  "points": "複数の保険会社の代理店として、個人・法人向けに最適な保険商品を提案",
+  "listed": "非上場",
+  "capital": "1,000万円",
+  "sales": "情報なし",
+  "employees": "約50名（2025年10月1日時点）",
+  "pr": "生命保険、損害保険など、複数の保険会社と提携し、お客様のライフステージやニーズに合わせた最適な保険プランを提案しています。",
+  "business": "保険代理店事業、保険コンサルティング業務",
+  "recruit_faculties": "情報なし",
+  "job_description": "保険コンサルタント、営業",
+  "benefits": "社会保険完備、交通費全額支給、資格取得支援制度、退職金制度、家族手当、住宅手当",
+  "salary": "月給250,000円〜",
+  "homepage": "https://nhs-inc.jp/recruit/",
+  "holidays": "完全週休2日制（土日）、祝日、夏季休暇、年末年始休暇、年次有給休暇"
+},
+          {
+  "id": "hoken-shop-partner",
+  "mainCategory": "finance",
+  "subCategory": "finance-insurance",
+  "kana": "ホケンショップパートナー",
+  "name": "株式会社保険ショップパートナー",
+  "points": "法人向けの損害・生命保険コンサルティング",
+  "listed": "非上場",
+  "capital": "1,000万円",
+  "sales": "情報なし",
+  "employees": "約120名（2025年10月1日現在）",
+  "pr": "特に建設業法人に特化した損害保険・生命保険のコンサルティング販売と、既存契約のフォローを行っています。お客様に寄り添い、安心を届けることを目指しています。",
+  "business": "保険のコンサルティング販売、事故対応。",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業（コンサルティング販売）、事務職、事故解決コンサルタント",
+  "benefits": "社会保険完備、交通費全額支給、資格取得支援制度、退職金制度、家族手当、住宅手当",
+  "salary": "大卒初任給：250,000円〜300,000円（職種による）",
+  "homepage": "https://www.hs-partner.co.jp/",
+  "holidays": "年間休日125日、完全週休2日制（土日）、祝日、年末年始休暇、夏季休暇"
+},
+          {
+  "id": "sumitomo-seimei",
+  "mainCategory": "finance",
+  "subCategory": "finance-insurance",
+  "kana": "スミトモセイメイホケンソウゴカイシャ",
+  "name": "住友生命保険相互会社",
+  "points": "業界トップクラスの総資産を誇る大手生命保険会社",
+  "listed": "非上場（相互会社のため）",
+  "capital": "情報なし（相互会社のため資本金に該当する概念がありません）",
+  "sales": "3兆6,128億円（2025年3月期、保険料等収入）",
+  "employees": "約55,000名（2025年3月末現在、営業職員・社員合計）",
+  "pr": "100年以上の歴史を持つ大手生命保険会社。お客様一人ひとりの人生に寄り添い、最適な保障とサービスを提供しています。",
+  "business": "生命保険商品の開発、販売、資産運用",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業（ライフデザイナー）、総合職（企画、営業、経理、情報システムなど）",
+  "benefits": "社会保険完備、通勤手当、退職金制度、財形貯蓄、社員割引制度、育児休業制度、介護休業制度",
+  "salary": "初任給：約240,000円〜（職種、勤務地による）",
+  "homepage": "https://www.sumitomolife.co.jp/about/recruit/",
+  "holidays": "完全週休2日制（土日）、祝日、年末年始休暇、年次有給休暇、特別休暇"
+}
+        ]
+      },
+      "construction": {
+        "施工管理": [
+         {
+  "id": "secom-engineering",
+  "mainCategory": "construction",
+  "subCategory": "construction-management",
+  "kana": "セコムエンジニアリング",
+  "name": "セコムエンジニアリング株式会社",
+  "points": "セコムグループの建築設備工事会社、空調・給排水・電気設備工事を通じて「安全・安心」を提供",
+  "listed": "非上場",
+  "capital": "1億円",
+  "sales": "270億円（2025年3月期）",
+  "employees": "約800名（2025年4月現在）",
+  "pr": "セコムグループの一員として、空気調和、給排水衛生、電気などの建築設備工事を通じて「安全・安心な快適空間」を提供しています。",
+  "business": "建築設備工事（空気調和、給排水衛生、電気設備など）、建物付帯設備のメンテナンス、空調機器販売。",
+  "recruit_faculties": "情報なし",
+  "job_description": "施工管理、技術職、営業職、事務職",
+  "benefits": "社会保険完備、通勤手当、残業手当、深夜手当、家族手当、住宅手当、社員割引、退職金制度、財形貯蓄、社員持株会",
+  "salary": "大卒初任給：240,000円〜（職種、勤務地による）",
+  "homepage": "https://www.secom-eng.co.jp/",
+  "holidays": "年間休日124日（完全週休2日制、年末年始休暇、夏季休暇、有給休暇）"
+},
+{
+  "id": "secom",
+  "mainCategory": "construction",
+  "subCategory": "construction-management",
+  "kana": "セコム",
+  "name": "セコム株式会社",
+  "points": "「安心」と「安全」を提供する総合セキュリティサービスを国内外で展開",
+  "listed": "東証プライム",
+  "capital": "697億2,400万円",
+  "sales": "1兆20億円（2025年3月期 連結）",
+  "employees": "約68,000名（連結、2025年3月末現在）",
+  "pr": "セキュリティ事業を核に、医療、損害保険、地理情報サービスなど、社会に「安心」と「安全」を提供するサービスを幅広く展開しています。",
+  "business": "セキュリティサービス、防災サービス、医療サービス、保険サービス、地理情報サービスなど。",
+  "recruit_faculties": "情報なし",
+  "job_description": "セキュリティ職、営業職、技術職、情報系職、企画・管理部門職",
+  "benefits": "社会保険完備、財形貯蓄、社員持株会、退職金制度、住宅支援制度、独身寮、保養所、社員割引制度",
+  "salary": "大卒初任給：227,000円（2025年4月実績、総合職）",
+  "homepage": "https://www.secom.co.jp/",
+  "holidays": "年間休日120日以上、完全週休2日制（土日）、祝日、年末年始休暇、慶弔休暇"
+},
+{
+  "id": "openhouse-architect",
+  "mainCategory": "construction",
+  "subCategory": "construction-management",
+  "kana": "オープンハウスアーキテクト",
+  "name": "株式会社オープンハウス・アーキテクト",
+  "points": "オープンハウスグループの建設会社、住宅の設計・施工からリフォームまで幅広く手掛ける",
+  "listed": "非上場",
+  "capital": "1億円",
+  "sales": "2,190億円（2024年9月期）",
+  "employees": "約2,800名（2024年9月現在）",
+  "pr": "オープンハウスグループの一員として、注文住宅の設計・施工やリフォーム工事などを手掛けています。グループのネットワークを活かし、質の高い住まいを提供しています。",
+  "business": "建築工事の統括（リフォームメイン）、住宅の定期点検、リノベーションなど。",
+  "recruit_faculties": "情報なし",
+  "job_description": "住宅施工管理職（リフォームメイン）、営業職、設計職、事務職",
+  "benefits": "社会保険完備、従業員持株会、住宅購入社員割引、慶弔見舞金、資格取得支援制度、交通費全額支給",
+  "salary": "大卒初任給：290,000円〜（職種、勤務地による）",
+  "homepage": "https://oha.openhouse-group.com/",
+  "holidays": "年間休日115日（水・日休み）"
+},
+{
+  "id": "moriya-ss",
+  "mainCategory": "construction",
+  "subCategory": "construction-management",
+  "kana": "モリヤソウゴウセツビ",
+  "name": "株式会社モリヤ総合設備",
+  "points": "空調冷暖房、給排水設備の施工管理",
+  "listed": "非上場",
+  "capital": "2,000万円",
+  "sales": "情報なし",
+  "employees": "81名（2025年10月現在）",
+  "pr": "官公庁や準大手ゼネコンの案件を中心に、空調冷暖房・給排水設備の施工管理を行っています。創業以来、建物に不可欠なインフラを支え、快適な空間づくりに貢献しています。",
+  "business": "空調冷暖房、給排水設備の施工管理。各種管工事、機械器具設置工事",
+  "recruit_faculties": "情報なし",
+  "job_description": "施工管理",
+  "benefits": "社会保険完備、退職金制度、資格取得支援制度、交通費全額支給、家族手当、住宅手当",
+  "salary": "大卒初任給：220,000円〜（職種・能力による）",
+  "homepage": "http://www.moriya-ss.co.jp/",
+  "holidays": "年間休日121日、完全週休2日制（土日）、祝日、年末年始休暇、夏季休暇"
+},
+{
+  "id": "marutakakogyo",
+  "mainCategory": "construction",
+  "subCategory": "construction-management",
+  "kana": "マルタカコウギョウ",
+  "name": "株式会社丸高工業",
+  "points": "給排水・空調機械設備工事のプロフェッショナル",
+  "listed": "非上場",
+  "capital": "1,000万円",
+  "sales": "情報なし",
+  "employees": "48名（2025年10月現在）",
+  "pr": "給排水や空調機械設備全般のプロとして、民間・官公庁の建築物を快適な空間にするための工事を行っています。",
+  "business": "給排水・空調機械設備全般の施工管理。",
+  "recruit_faculties": "情報なし",
+  "job_description": "現場管理職、配管工",
+  "benefits": "社会保険完備、交通費全額支給、資格取得支援制度、退職金制度、家族手当、住宅手当",
+  "salary": "大卒初任給：220,000円〜250,000円（職種・能力による）",
+  "homepage": "https://marutakakogyo.recruitment-info.jp/",
+  "holidays": "年間休日110日（土日祝祭日、年末年始、夏季休暇含む）"
+},
+{
+  "id": "keio-kensetsu",
+  "mainCategory": "construction",
+  "subCategory": "construction-management",
+  "kana": "ケイオウケンセツ",
+  "name": "京王建設株式会社",
+  "points": "京王グループの総合建設会社として、鉄道工事、建築、土木など幅広く手掛ける",
+  "listed": "非上場",
+  "capital": "1億6,000万円",
+  "sales": "153億円（2025年3月期）",
+  "employees": "約300名（2025年4月現在）",
+  "pr": "京王グループの総合建設会社として、オフィスビル、住宅、駅舎など、幅広い建築・土木工事を手掛けています。",
+  "business": "建築・土木・軌道工事の請負、設計、監理。",
+  "recruit_faculties": "情報なし",
+  "job_description": "施工管理職（建築・土木・軌道）",
+  "benefits": "社会保険完備、資格取得支援制度、社宅・家賃補助制度あり、退職金制度、財形貯蓄、社員割引制度",
+  "salary": "大卒初任給：232,000円〜（職種、勤務地による）",
+  "homepage": "https://www.keio-kensetsu.co.jp/",
+  "holidays": "年間休日124日（完全週休2日制、年末年始休暇、慶弔休暇、リフレッシュ休暇）"
+}
+        ],
+        "設計": [
+         {
+  "id": "johnson-controls",
+  "mainCategory": "construction",
+  "subCategory": "construction-design",
+  "kana": "ジョンソンコントロールズ",
+  "name": "ジョンソンコントロールズ株式会社",
+  "points": "スマートビルディング技術の提供",
+  "listed": "非上場（親会社：Johnson Controls International plcがニューヨーク証券取引所に上場）",
+  "capital": "10億2,000万円",
+  "sales": "3.5兆円（2025年9月期 連結）",
+  "employees": "約100,000名（連結、2025年9月現在）",
+  "pr": "建物のライフサイクルを通じて、中央監視、自動制御機器、空調冷熱機器などを提供し、スマートビル、スマートシティを支援しています。",
+  "business": "中央監視、空調、セキュリティシステムの設計・施工・保守。",
+  "recruit_faculties": "情報なし",
+  "job_description": "施工管理、設備管理、営業、サービスエンジニア、技術開発",
+  "benefits": "社会保険完備、確定拠出年金、財形貯蓄、社員持株会、住宅手当、単身赴任手当、社員割引",
+  "salary": "大卒初任給：250,000円〜（職種・勤務地による）",
+  "homepage": "https://www.johnsoncontrols.co.jp/",
+  "holidays": "年間休日120日、完全週休2日制（土日）、祝日、年末年始休暇"
+},
+{
+  "id": "transcosmos",
+  "mainCategory": "construction",
+  "subCategory": "construction-design",
+  "kana": "トランスコスモス",
+  "name": "トランスコスモス株式会社",
+  "points": "DXサービスを幅広く提供、アウトソーシングサービスのリーディングカンパニー",
+  "listed": "東証プライム",
+  "capital": "291億6,700万円",
+  "sales": "3,959億円（2025年3月期 連結）",
+  "employees": "約65,000名（連結、海外含む）",
+  "pr": "お客様企業の事業プロセスを効率化する様々なサービスを提供し、デジタルトランスフォーメーションを支援しています。コンタクトセンターやBPOサービスで業界を牽引しています。",
+  "business": "Webサイト企画・制作・運用、コンタクトセンター運用、BPOサービス。",
+  "recruit_faculties": "情報なし",
+  "job_description": "ITエンジニア、BPOサービスマネジメント、営業、企画、事務",
+  "benefits": "社会保険完備、通勤手当、残業手当、資格取得奨励制度、財形貯蓄、社員持株会、育児・介護休業制度",
+  "salary": "大卒初任給：220,000円〜（職種、勤務地により変動あり）",
+  "homepage": "https://www.trans-cosmos.co.jp/",
+  "holidays": "年間休日121日（完全週休2日制、年末年始休暇、夏季休暇、有給休暇、特別休暇）"
+},
+{
+  "id": "aktio",
+  "mainCategory": "construction",
+  "subCategory": "construction-design",
+  "kana": "アクティオ",
+  "name": "株式会社アクティオ",
+  "points": "建設機械のレンタル事業",
+  "listed": "非上場",
+  "capital": "100億円",
+  "sales": "3,446億円（2025年3月期 連結）",
+  "employees": "約3,400名（単体）、約6,700名（連結）",
+  "pr": "建設機械のレンタル事業を通じて、インフラ整備やまちづくりに貢献しています。高度な専門知識と豊富な機械保有台数で、お客様のニーズに応えています。",
+  "business": "建設機械のレンタル、製造、販売、修理。",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業職、整備職、事務職、技術職",
+  "benefits": "社会保険完備、財形貯蓄、社員持株会、退職金制度、独身寮、保養所、資格取得支援制度",
+  "salary": "大卒初任給：240,000円〜（職種、勤務地による）",
+  "homepage": "https://www.aktio.co.jp/",
+  "holidays": "年間休日124日（完全週休2日制、年末年始休暇、夏季休暇、慶弔休暇）"
+},
+{
+  "id": "iogrants",
+  "mainCategory": "construction",
+  "subCategory": "construction-design",
+  "kana": "イオグランツ",
+  "name": "株式会社イオグランツ",
+  "points": "建築CADソフトウェアの開発・販売",
+  "listed": "非上場",
+  "capital": "1,000万円",
+  "sales": "9.5億円（2025年3月期）",
+  "employees": "約50名（2025年4月現在）",
+  "pr": "建築業界に特化したCADソフトウェアの開発・販売を通じて、設計業務の効率化を支援しています。特に木造建築に強みを持ち、業界のDXを推進しています。",
+  "business": "建築CADソフトウェアの販売・開発、CGパース制作、AR/VRコンテンツ制作。",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業、システムエンジニア、カスタマーサポート、技術職、事務職",
+  "benefits": "社会保険完備、寮・社宅あり、通勤手当、資格取得支援制度、退職金制度",
+  "salary": "大卒初任給：220,000円〜250,000円（職種・能力による）",
+  "homepage": "https://eog.co.jp/",
+  "holidays": "年間休日120日以上、完全週休2日制（土日）、祝日、年末年始休暇"
+},
+
+{
+  "id": "nihon-biso",
+  "mainCategory": "construction",
+  "subCategory": "construction-design",
+  "kana": "ニホンビソー",
+  "name": "日本ビソー株式会社",
+  "points": "廃棄物処理、ビルメンテナンス、リサイクルなど幅広い事業を手掛ける",
+  "listed": "非上場",
+  "capital": "1,000万円",
+  "sales": "情報なし",
+  "employees": "約50名（2025年10月現在）",
+  "pr": "ビルメンテナンスや廃棄物処理事業を通じて、都市のインフラ維持に貢献しています。産業廃棄物の収集・運搬からリサイクルまで、一貫したサービスを提供しています。",
+  "business": "廃棄物処理事業、ビルメンテナンス事業、リサイクル事業、解体工事。",
+  "recruit_faculties": "情報なし",
+  "job_description": "現場管理職、機材管理職、スタッフ職（営業、事務、一般事務）",
+  "benefits": "社会保険完備、交通費全額支給、資格取得支援制度、退職金制度、家族手当、住宅手当",
+  "salary": "大卒初任給：220,000円〜（職種、能力による）",
+  "homepage": "https://nihon-biso.co.jp/",
+  "holidays": "年間休日110日（完全週休2日制、年末年始、夏季休暇）"
+}
+        ]
+      },
+      "trading": {
+        "専門商社": [
+          {
+  "id": "ykt",
+  "mainCategory": "trading",
+  "subCategory": "trading-specialty",
+  "kana": "ワイケイティー",
+  "name": "YKT株式会社",
+  "points": "ニッチでハイスペックな生産設備を扱う商社",
+  "listed": "東証スタンダード",
+  "capital": "10億8,400万円",
+  "sales": "151億2,600万円（2025年12月期 連結）",
+  "employees": "136名（2025年12月現在）",
+  "pr": "ニッチでハイスペックな生産設備を専門に扱い、お客様のモノづくりの課題を解決する提案を行っています。",
+  "business": "生産設備の販売、技術サービス、自社製品の開発。",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業職、技術職",
+  "benefits": "社会保険完備、財形貯蓄、社員持株会、退職金制度、住宅補助制度、福利厚生サービス（ベネフィット・ワンなど）",
+  "salary": "大卒初任給：220,000円〜（職種、勤務地による）",
+  "homepage": "https://www.ykt.co.jp/",
+  "holidays": "年間休日124日（完全週休2日制、土日祝日、年末年始休暇、夏季休暇）"
+},
+
+{
+  "id": "gunze-medical",
+  "mainCategory": "trading",
+  "subCategory": "trading-specialty",
+  "kana": "グンゼメディカル",
+  "name": "グンゼメディカル株式会社",
+  "points": "形成・美容外科、脳神経外科向けの医療機器の販売・コンサルティング",
+  "listed": "非上場",
+  "capital": "1,000万円",
+  "sales": "情報なし",
+  "employees": "約30名",
+  "pr": "形成・美容外科、脳神経外科などの医療機器の販売と開業に関するコンサルティングを行っています。最先端の医療機器を通じて、医療現場をサポートしています。",
+  "business": "医療機器の販売、医療機関開業コンサルティング、医療関連消耗品の販売。",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業職、事務職",
+  "benefits": "社会保険完備、交通費全額支給、資格取得支援制度、退職金制度、家族手当",
+  "salary": "大卒初任給：220,000円〜（職種・能力による）",
+  "homepage": "http://www.gunze-medical.co.jp/",
+  "holidays": "年間休日120日（完全週休2日制、土日祝日、年末年始、夏季休暇）"
+},
+
+{
+  "id": "saitama-toyopet",
+  "mainCategory": "trading",
+  "subCategory": "trading-specialty",
+  "kana": "サイタマトヨペット",
+  "name": "埼玉トヨペット株式会社",
+  "points": "埼玉県を拠点とするトヨタ正規ディーラー",
+  "listed": "非上場",
+  "capital": "1億3,000万円",
+  "sales": "626億円（2025年3月期）",
+  "employees": "1,070名（2025年3月現在）",
+  "pr": "埼玉県でトヨタ車を扱う正規ディーラーとして、お客様に快適なカーライフを提供しています。地域に密着した店舗展開で、高い顧客満足度を追求しています。",
+  "business": "新車・中古車販売、自動車整備・点検、自動車部品販売、損害保険代理店事業。",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業職、サービスエンジニア、洗車、車両回送、店舗美化",
+  "benefits": "社会保険完備、確定拠出年金、財形貯蓄、社員自家用車購入優遇制度、社員旅行、独身寮、保養所",
+  "salary": "大卒初任給：243,000円〜（職種・勤務地による）",
+  "homepage": "https://saitama-toyopet.co.jp/",
+  "holidays": "年間休日110日（完全週休2日制、火曜日・水曜日定休）、GW、夏季、年末年始休暇"
+},
+{
+  "id": "funasho-shoji",
+  "mainCategory": "trading",
+  "subCategory": "trading-food",
+  "kana": "フナショウショウジ",
+  "name": "船昌商事株式会社",
+  "points": "青果物専門の総合食品商社",
+  "listed": "非上場",
+  "capital": "1億3,500万円",
+  "sales": "529億円（2025年3月期）",
+  "employees": "約130名（2025年4月現在）",
+  "pr": "国内外の産地から青果物を調達し、スーパーマーケットや外食産業へ提供する青果物専門の総合食品商社です。お客様に新鮮で高品質な青果物を届け、食文化の発展に貢献しています。",
+  "business": "青果物の国内販売、輸出入、商品開発、物流管理",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業職、貿易事務職、企画職",
+  "benefits": "社会保険完備、交通費全額支給、退職金制度、家族手当、住宅手当、財形貯蓄",
+  "salary": "大卒初任給：230,000円〜（職種、能力による）",
+  "homepage": "https://www.funasho.co.jp/",
+  "holidays": "年間休日115日（水曜・日曜休み）、年末年始休暇、夏季休暇、慶弔休暇"
+},
+{
+  "id": "chuo-seiko",
+  "mainCategory": "trading",
+  "subCategory": "trading-specialty",
+  "kana": "チュウオウセイコウ",
+  "name": "中央精工株式会社",
+  "points": "建機メーカーを主要顧客とする専門商社",
+  "listed": "非上場",
+  "capital": "1,000万円",
+  "sales": "情報なし",
+  "employees": "約50名（2025年10月現在）",
+  "pr": "建機メーカーを主要顧客とし、機械・電気・電子部品などの既存顧客へのルート営業を主に行っています。お客様のニーズに応じた最適なソリューションを提案しています。",
+  "business": "機械・電気・電子部品等の販売。",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業職（ルートセールス）、事務職",
+  "benefits": "社会保険完備、交通費全額支給、退職金制度、家族手当、住宅手当",
+  "salary": "大卒初任給：220,000円〜（職種、能力による）",
+  "homepage": "https://chuo-seiko.co.jp/",
+  "holidays": "年間休日115日（土日祝日、年末年始、夏季休暇）"
+},
+{
+  "id": "tanaka-shoji",
+  "mainCategory": "trading",
+  "subCategory": "trading-specialty",
+  "kana": "タナカショウジ",
+  "name": "田中商事株式会社",
+  "points": "電気設備資材を扱う独立系総合商社",
+  "listed": "非上場",
+  "capital": "1億円",
+  "sales": "250億円（2025年10月期）",
+  "employees": "約250名（2025年10月現在）",
+  "pr": "電気設備資材を扱う独立系総合商社として、お客様のニーズに合った豊富な商品を提案しています。オフィスビルや工場、商業施設など、あらゆる建物のインフラを支えています。",
+  "business": "電気設備資材の販売、施工管理、設計支援。",
+  "recruit_faculties": "情報なし",
+  "job_description": "営業職、営業事務職、管理部門職",
+  "benefits": "社会保険完備、交通費全額支給、退職金制度、財形貯蓄、家族手当、住宅手当",
+  "salary": "大卒初任給：230,000円〜（職種、勤務地による）",
+  "homepage": "https://www.tanakashoji.co.jp/",
+  "holidays": "年間休日120日（完全週休2日制、土日祝日、夏季休暇、年末年始休暇）"
+}
+        ]
+      },
+      "hr": {
+        "求人広告": [
+          {
+    id: 'tracom',
+    mainCategory: 'hr',
+    subCategory: 'hr-ad',
+    kana: 'トラコム',
+    name: 'トラコム株式会社',
+    points: 'IndeedやGoogle等の求人広告代理店',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: 'IndeedやGoogleなどの最先端の広告手法を使い、企業の採用課題を解決する企画提案を行っています。',
+    business: '求人広告代理業、採用コンサルティング。',
+    recruit_faculties: '情報なし',
+    job_description: '企画提案型の法人営業',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.tracom.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'gimic',
+    mainCategory: 'hr',
+    subCategory: 'hr-ad',
+    kana: 'ギミック',
+    name: '株式会社ギミック',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '情報なし',
+    business: '情報なし',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '入社支度金10万円、通期優秀ディレクター遊学制度',
+    salary: '情報なし',
+    homepage: 'https://gimic.co.jp/',
+    holidays: '情報なし'
+}
+        ],
+        "人材紹介": [
+          {
+    id: 'career-design-center',
+    mainCategory: 'hr',
+    subCategory: 'hr-ad',
+    kana: 'キャリアデザインセンター',
+    name: '株式会社キャリアデザインセンター',
+    points: '「type」シリーズを運営',
+    listed: '東証プライム',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '求人サイト「type」や転職フェア「転職博」などを通じて、企業の採用成功と求職者のキャリア支援を行っています。',
+    business: '求人広告事業、人材紹介事業。',
+    recruit_faculties: '情報なし',
+    job_description: '企画提案型の営業',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.cdc.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'j-order',
+    mainCategory: 'hr',
+    subCategory: 'hr-ad',
+    kana: 'ジェイオーダー',
+    name: '株式会社ジェイオーダー',
+    points: '企画提案型の求人広告営業',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '企業の採用課題を解決するため、クライアントと深く関わり、企画提案型の求人広告営業を行っています。',
+    business: '求人広告の企画・制作、採用コンサルティング。',
+    recruit_faculties: '情報なし',
+    job_description: '企画提案営業、新規事業の立ち上げ',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://j-order.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'delta',
+    mainCategory: 'hr',
+    subCategory: 'hr-ad',
+    kana: 'デルタ',
+    name: '株式会社デルタ',
+    points: '多角的な事業展開をする人材会社',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: 'ヒューマンリソース事業に加え、セールスプロモーション事業など多角的な事業を展開しています。',
+    business: '採用業務支援、セールスプロモーション。',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '年間休日120日以上、完全週休2日制',
+    salary: '情報なし',
+    homepage: 'https://delta-group.jp/',
+    holidays: '年間休日120日以上、完全週休2日制'
+},
+{
+    id: 'dym',
+    mainCategory: 'hr',
+    subCategory: 'hr-ad',
+    kana: 'ディーワイエム',
+    name: '株式会社DYM',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: 'Web事業、人材事業、医療事業など多岐にわたる事業を展開し、若手から裁量を持って働ける環境です。',
+    business: 'Web事業、人材事業、医療事業、エグゼパート事業、M&A事業など。',
+    recruit_faculties: '情報なし',
+    job_description: '総合職',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://dym.bz/',
+    holidays: '情報なし'
+},
+{
+    id: 'for-a-career',
+    mainCategory: 'hr',
+    subCategory: 'hr-ad',
+    kana: 'フォーエーキャリア',
+    name: '株式会社For A-career',
+    points: '毎年新規事業を立ち上げるベンチャー企業',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '毎年必ず新規事業を立ち上げ、若いうちから事業を創る挑戦ができる環境を提供しています。',
+    business: 'インフルエンサーマーケティング、採用コンサルティングなど。',
+    recruit_faculties: '情報なし',
+    job_description: '総合職',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://foracareer.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'genova',
+    mainCategory: 'hr',
+    subCategory: 'hr-ad',
+    kana: 'ジェノバ',
+    name: '株式会社GENOVA',
+    points: '医療・ヘルスケア分野に特化',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '「ヒトと医療をつないで健康な社会を創ります」というミッションのもと、メディカルプラットフォーム事業やスマートクリニック事業を展開しています。',
+    business: 'メディカルプラットフォーム事業、スマートクリニック事業。',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://genova.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'ms-japan',
+    mainCategory: 'hr',
+    subCategory: 'hr-ad',
+    kana: 'エムエスジャパン',
+    name: '株式会社MS-japan',
+    points: '士業・管理部門に特化した転職エージェント',
+    listed: '東証プライム',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '弁護士、公認会計士、税理士といった「士業」と、管理部門職種に特化した人材紹介サービスを提供しています。',
+    business: '人材紹介業、求人サイト運営。',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '年間休日120日以上',
+    salary: '情報なし',
+    homepage: 'https://www.jmsc.co.jp/',
+    holidays: '年間休日120日以上'
+},
+{
+    id: 'twostone-sons',
+    mainCategory: 'hr',
+    subCategory: 'hr-ad',
+    kana: 'ツーストーンアンドサンズ',
+    name: '株式会社TWOSTONE&Sons',
+    points: 'エンジニア・デザイナーに特化した事業を展開',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: 'エンジニアのための職場選びサービス「Tech Stars」など、IT人材に特化した事業を展開しています。',
+    business: 'IT人材向けサービス、Webマーケティング支援。',
+    recruit_faculties: '情報なし',
+    job_description: '営業事務、マーケティング、採用戦略、インサイドセールス',
+    benefits: '年間休日120日以上',
+    salary: '月給292,000円～',
+    homepage: 'https://twostone.co.jp/',
+    holidays: '年間休日120日以上'
+},
+{
+    id: 'zeal-communications',
+    mainCategory: 'hr',
+    subCategory: 'hr-ad',
+    kana: 'ジールコミュニケーションズ',
+    name: '株式会社ジールコミュニケーションズ',
+    points: 'デジタルリスク対策とHR事業を展開',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '企業のデジタルリスクを対策する事業と、採用・人材不足を支援するHR事業を展開しています。',
+    business: 'デジタルリスク事業、HR事業。',
+    recruit_faculties: '情報なし',
+    job_description: '営業職、事務職、人材マーケティング職',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://zeal-com.co.jp/',
+    holidays: '情報なし'
+}
+        ],
+        "人材派遣": [
+          {
+    id: 'adecco',
+    mainCategory: 'hr',
+    subCategory: 'hr-placement',
+    kana: 'アデコ',
+    name: 'アデコ株式会社',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '人財派遣を中心に、人財紹介、アウトソーシングなど幅広いソリューションを提供しています。',
+    business: '人材派遣、人材紹介、アウトソーシング。',
+    recruit_faculties: '情報なし',
+    job_description: '法人営業',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.adecco.co.jp/',
+    holidays: '情報なし'
+},
+// 人材系 -> 人材派遣
+{
+    id: 'persol-factory-partners',
+    mainCategory: 'hr',
+    subCategory: 'hr-dispatch',
+    kana: 'パーソルファクトリーパートナーズ',
+    name: 'パーソルファクトリーパートナーズ株式会社',
+    points: '製造業に特化した人材派遣会社',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: 'パーソルグループの一員として、製造業の工場での製造作業に特化した人材サービスを提供しています。',
+    business: '製造業向け人材派遣、アウトソーシング。',
+    recruit_faculties: '情報なし',
+    job_description: '製造作業（マシンオペレーター、組立、検査など）',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://persol-factorypartners.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'brexa-technology',
+    mainCategory: 'hr',
+    subCategory: 'hr-dispatch',
+    kana: 'ブレクサテクノロジー',
+    name: '株式会社BREXA Technology',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '情報なし',
+    business: '情報なし',
+    recruit_faculties: '情報なし',
+    job_description: 'システム設計、コーディング、スマートデバイスアプリ開発',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://brexa.com/technology/',
+    holidays: '情報なし'
+},
+{
+    id: 'aspark',
+    mainCategory: 'hr',
+    subCategory: 'hr-dispatch',
+    kana: 'アスパーク',
+    name: '株式会社アスパーク',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '技術者派遣事業を核に、社員の成長を促すキャリアカウンセリングや研修にも力を入れています。',
+    business: '技術者派遣事業、採用コンサルティング。',
+    recruit_faculties: '情報なし',
+    job_description: '総合職',
+    benefits: '独身寮、キャリアコンサルティング、社内イベント',
+    salary: '情報なし',
+    homepage: 'https://www.aspark.co.jp/',
+    holidays: '週休2日制、祝祭日'
+},
+// 人材系 -> 人材派遣
+{
+    id: 'sogo-career-option',
+    mainCategory: 'hr',
+    subCategory: 'hr-dispatch',
+    kana: 'ソウゴウキャリアオプション',
+    name: '株式会社綜合キャリアオプション',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '情報なし',
+    business: '情報なし',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.sougo-career.co.jp/',
+    holidays: '情報なし'
+}
+        ]
+      },
+      "realestate": {
+        "住宅メーカー": [
+          {
+    id: 'id-home',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-house-maker',
+    kana: 'アイディホーム',
+    name: 'アイディホーム株式会社',
+    points: '飯田グループホールディングスの中核企業',
+    listed: '東証プライム',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '飯田グループホールディングスの中核企業として、誰もが手の届く価格で高品質な戸建住宅を提供しています。',
+    business: '戸建分譲事業、リフォーム事業、注文住宅事業。',
+    recruit_faculties: '建築系・土木系学科歓迎',
+    job_description: '用地仕入れ、商品企画、施工管理、販売戦略、アフターサービス',
+    benefits: '福利厚生充実、教育・研修制度充実、資格取得支援制度あり',
+    salary: '情報なし',
+    homepage: 'https://www.idhome.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'earnest-one',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-house-maker',
+    kana: 'アーネストワン',
+    name: '株式会社アーネストワン',
+    points: '低価格で高品質な住宅を提供',
+    listed: '東証プライム',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '徹底した工期短縮とコスト管理により、高品質な住まいを低価格で提供しています。',
+    business: '分譲戸建住宅の企画・開発・建設。',
+    recruit_faculties: '情報なし',
+    job_description: '企画営業、建築施工管理、品質管理（検査、アフターメンテナンス、設計）',
+    benefits: '年間休日120日以上、教育・研修制度充実',
+    salary: '情報なし',
+    homepage: 'https://www.arnest1.co.jp/',
+    holidays: '年間休日120日以上'
+},
+// 不動産系 -> 不動産販売・管理
+{
+    id: 'sheila-technologies',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-sale-management',
+    kana: 'シーラテクノロジーズ',
+    name: '株式会社シーラテクノロジーズ',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '情報なし',
+    business: '情報なし',
+    recruit_faculties: '情報なし',
+    job_description: '送迎ドライバー',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://syla-technologies.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'nasta',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-sale-management',
+    kana: 'ナスタ',
+    name: '株式会社ナスタ',
+    points: '住宅設備機器メーカー',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '「住むを良く」をコーポレートビジョンに掲げ、製品の企画から製造、販売までを一貫して行っています。',
+    business: '住宅設備機器の企画、製造、販売。',
+    recruit_faculties: '情報なし',
+    job_description: '営業、設計開発、製造、物流、品質管理',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.nasta.co.jp/',
+    holidays: '情報なし'
+}
+        ],
+        "不動産販売・管理": [
+          { name: "SGリアルティ株式会社", overview: "物流施設専門の不動産開発。", jobs: "営業、開発", link: "https://www.sg-realty.co.jp/recruit/" },
+          {
+    id: 'eslead',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-sale-management',
+    kana: 'エスリード',
+    name: 'エスリード株式会社',
+    points: '総合不動産会社',
+    listed: '東証プライム',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: 'マンション専業から「真の総合不動産会社」への変革期にあり、多様な不動産事業を展開しています。',
+    business: 'マンション・オフィスビル開発、不動産販売・アフターフォロー、用地仕入れ。',
+    recruit_faculties: '情報なし',
+    job_description: '販売・アフターフォロー営業職、不動産開発職',
+    benefits: '年間休日120日以上、福利厚生充実',
+    salary: '情報なし',
+    homepage: 'https://www.eslead.co.jp/',
+    holidays: '年間休日120日以上'
+},
+{
+    id: 'presance-corporation',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-sale-management',
+    kana: 'プレサンスコーポレーション',
+    name: '株式会社プレサンスコーポレーション',
+    points: '全国トップクラスの供給戸数を誇るマンションデベロッパー',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '新築分譲マンションの企画・開発から分譲・管理までを一貫して手掛けています。',
+    business: '新築分譲マンションの企画・開発・分譲・管理。',
+    recruit_faculties: '情報なし',
+    job_description: '収益不動産営業',
+    benefits: '年間休日120日以上',
+    salary: '月給300,000円～',
+    homepage: 'https://www.pressance.co.jp/',
+    holidays: '年間休日120日以上'
+},
+{
+    id: 'anabuki-community',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-sale-management',
+    kana: 'アナブキコミュニティ',
+    name: '株式会社穴吹コミュニティ',
+    points: 'マンション管理に特化',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '穴吹工務店が開発したマンション「サーパスマンション」の管理を中心に行い、居住者の快適な生活をサポートしています。',
+    business: 'マンション管理組合のサポート、修繕工事の提案・管理。',
+    recruit_faculties: '情報なし',
+    job_description: 'マンションアドバイザー',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.anabuki-community.com/',
+    holidays: '情報なし'
+},
+{
+    id: 'daikyo-anabuki-fudosan',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-sale-management',
+    kana: 'ダイキョウアナブキフドウサン',
+    name: '株式会社大京穴吹不動産',
+    points: '不動産売買・賃貸・リフォーム事業を展開',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: 'ライオンズマンション、サーパスマンションをはじめとする既存不動産の売買・賃貸・リフォーム事業を行っています。',
+    business: '不動産売買・賃貸・リフォーム。',
+    recruit_faculties: '情報なし',
+    job_description: '不動産賃貸営業職、マンション仕入れ営業職、リフォーム営業職、売買仲介営業職',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.daikyo-anabuki.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'yamato-zaitaku',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-sale-management',
+    kana: 'ヤマトザイタク',
+    name: '大和財託株式会社',
+    points: '資産運用コンサルティング会社',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '年商155億円',
+    employees: '情報なし',
+    pr: '収益不動産を活用した資産運用コンサルティング事業を展開し、お客様の利益最大化を目指しています。',
+    business: '収益不動産の売買、企画、設計、賃貸管理、施工管理。',
+    recruit_faculties: '情報なし',
+    job_description: '総合職、施工管理、設計',
+    benefits: 'ジョブローテーション制度',
+    salary: '情報なし',
+    homepage: 'https://www.yamatozaitaku.co.jp/',
+    holidays: '情報なし'
+}
+
+        ],
+        "用地開発・商業用不動産": [
+          {
+    id: 'meikyo-kanri-service',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-development',
+    kana: 'メイキョウカンリサービス',
+    name: '明鏡管理サービス株式会社',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '設備管理やコスト削減などの各種サービスを提案するルートセールスを行っています。',
+    business: '不動産管理サービス。',
+    recruit_faculties: '情報なし',
+    job_description: 'ルートセールス、設備管理・保守点検',
+    benefits: '情報なし',
+    salary: '月給18万円以上',
+    homepage: 'https://www.meikyo-kanri.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'living-life-group',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-development',
+    kana: 'リビングライフグループ',
+    name: 'リビングライフグループ',
+    points: 'マンション管理から不動産開発まで幅広く事業を展開',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '分譲マンションの管理に加え、住宅の売買仲介や用地開発も手掛ける総合不動産グループです。',
+    business: 'マンション管理、住宅の売買・賃貸仲介、用地開発、コインパーキング開発、施工管理。',
+    recruit_faculties: '情報なし',
+    job_description: '住宅の売買仲介、賃貸仲介、用地開発、施工管理',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.living-life.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'asahi-housing',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-development',
+    kana: 'アサヒハウジング',
+    name: '株式会社旭ハウジング',
+    points: '用地仕入れからアフターメンテナンスまで一貫',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '用地の仕入れから宅地開発、建築施工、アフターメンテナンスまでを一貫して行い、良質な住宅を提供しています。',
+    business: '用地仕入れ、宅地造成、建築施工管理、品質管理、アフターメンテナンス。',
+    recruit_faculties: '情報なし',
+    job_description: '不動産バイヤー（用地仕入）、企画販促営業',
+    benefits: '情報なし',
+    salary: '月給258,000円〜350,000円',
+    homepage: 'https://www.asahi-housing.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'hanshin-juken',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-development',
+    kana: 'ハンシンジュウケン',
+    name: '株式会社阪神住建',
+    points: '自社賃貸物件の維持管理',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '自社で保有する賃貸マンション、オフィスビル、商業ビルなどの維持管理を行っています。',
+    business: '自社賃貸物件の維持管理。',
+    recruit_faculties: '情報なし',
+    job_description: '維持管理（退去立ち会い、修繕・リフォーム発注など）',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://hanshinjuken.com/',
+    holidays: '情報なし'
+},
+{
+    id: 'nippon-parking-development',
+    mainCategory: 'real-estate',
+    subCategory: 'real-estate-development',
+    kana: 'ニッポンチュウシャジョウカイハツ',
+    name: '日本駐車場開発株式会社',
+    points: '駐車場業界のリーディングカンパニー',
+    listed: '東証プライム',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '土地オーナーから駐車場を借り上げ、運営・管理を行うことで、遊休地の有効活用を促進しています。',
+    business: '駐車場の企画、開発、運営、管理。',
+    recruit_faculties: '情報なし',
+    job_description: '営業、スタッフ・駐車場の管理',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.n-p-d.co.jp/',
+    holidays: '情報なし'
+}
+        ]
+      },
+      "welfare": {
+        "介護": [
+          {
+    id: 'sompo-care',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-care',
+    kana: 'ソンポケア',
+    name: 'SOMPOケア株式会社',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '有料老人ホームやグループホームの運営、居宅サービス事業を展開しています。',
+    business: '有料老人ホーム・グループホーム・居宅サービス事業の運営。',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '社宅制度、育児短時間勤務制度、保育料補助',
+    salary: '情報なし',
+    homepage: 'https://www.sompocare.com/',
+    holidays: '情報なし'
+},
+{
+    id: 'az-partners',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-care',
+    kana: 'アズパートナーズ',
+    name: '株式会社アズパートナーズ',
+    points: 'IoT&ICTを活用した介護DXを推進',
+    listed: '東証スタンダード',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '介護付きホーム「アズハイム」シリーズの企画・開発・運営に加え、不動産事業も展開しています。',
+    business: 'シニア事業（介護付きホーム等の運営）、不動産事業。',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.az-partners.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'kuraci',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-care',
+    kana: 'クラーチ',
+    name: '株式会社クラーチ',
+    points: '感動とサプライズをデザインする介護',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '「感動とサプライズをデザインする」を理念に、革新的な介護・高齢者サービスを展開しています。',
+    business: '介護・高齢者サービスの運営。',
+    recruit_faculties: '情報なし',
+    job_description: 'ケアスタッフ',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.kuraci.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'care-rits-and-partners',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-care',
+    kana: 'ケアリッツアンドパートナーズ',
+    name: '株式会社ケアリッツ・アンド・パートナーズ',
+    points: '訪問介護サービスが中心',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: 'お客様のご自宅を訪問し、一人ひとりに合ったケアサービスを提供しています。',
+    business: '訪問介護サービス。',
+    recruit_faculties: '情報なし',
+    job_description: 'オープンポジションコース（ケアスタッフ）',
+    benefits: '資格取得支援制度、メンター制度、キャリアコンサルティング制度',
+    salary: '情報なし',
+    homepage: 'https://www.care-rits.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'nichii-care-palace',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-care',
+    kana: 'ニチイケアパレス',
+    name: '株式会社ニチイケアパレス',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '介護、看護、機能訓練指導など、幅広い職種で高齢者の生活を支えています。',
+    business: '介護施設の運営、各種介護サービス。',
+    recruit_faculties: '情報なし',
+    job_description: '介護、看護、機能訓練指導員、ケアマネジャー、生活相談員、施設事務、ドライバー、入居アドバイザー、本社事務',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://nichii-home.recruitment.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'benesse-style-care',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-care',
+    kana: 'ベネッセスタイルケア',
+    name: '株式会社ベネッセスタイルケア',
+    points: 'ベネッセグループの介護事業',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '「Benesse=よく生きる」の理念のもと、介護・保育事業を展開し、お客様のWell-beingを支援しています。',
+    business: '介護事業（有料老人ホーム運営等）、保育事業。',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.benesse-style-care.co.jp/',
+    holidays: '情報なし'
+}
+        ],
+        "教育": [
+          {
+    id: 'sprix',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-education',
+    kana: 'スプリックス',
+    name: '株式会社スプリックス',
+    points: '情報なし',
+    listed: '東証プライム',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '公立中学校の生徒向け教材の開発など、教育事業を幅広く手掛けています。',
+    business: '教材開発、学習塾運営、教育関連サービス。',
+    recruit_faculties: '情報なし',
+    job_description: '教材の企画開発',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://sprix.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'blued',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-education',
+    kana: 'ブルード',
+    name: '株式会社ブルード',
+    points: '留学事業が中心',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '国内No.1の海外留学サービス「StudyIn」を運営し、留学支援を行っています。',
+    business: '海外留学事業。',
+    recruit_faculties: '情報なし',
+    job_description: '学校法人営業',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://blued.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'poppins',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-education',
+    kana: 'ポピンズ',
+    name: '株式会社ポピンズ',
+    points: '情報なし',
+    listed: '東証プライム',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: 'ベビーシッターや保育サービス、介護サービスなど、幅広く人材サービスを提供しています。',
+    business: '家事代行、介護、医療ケア。',
+    recruit_faculties: '情報なし',
+    job_description: '家事コース、介護コース、ナースケアコース',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.poppins.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'soei-corporation',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-education',
+    kana: 'ソウエイコーポレーション',
+    name: '株式会社創英コーポレーション',
+    points: '学習塾の運営が中心',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '学習塾の運営を通じて、生徒の成長と教育の未来に貢献しています。',
+    business: '学習塾の運営、教育関連事業。',
+    recruit_faculties: '情報なし',
+    job_description: '教室運営、教室長、マネージャー、本部企画職、イベント企画、アルバイト講師の研修担当',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.soei-net.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'sogo-shikaku',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-education',
+    kana: 'ソウゴウシカク',
+    name: '株式会社総合資格',
+    points: '建築士等の資格取得支援',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '建築士などの国家資格取得に向けたサポートを、全社一丸となって提供しています。',
+    business: '建築士・宅建士等の資格取得講座の企画・運営。',
+    recruit_faculties: '情報なし',
+    job_description: '営業、教務',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.sogoshikaku.co.jp/',
+    holidays: '情報なし'
+}
+        ],
+        "福祉・医療": [
+          {
+    id: 'yamashita',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-medical',
+    kana: 'ヤマシタ',
+    name: '株式会社ヤマシタ',
+    points: '福祉用具のレンタル・販売',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '福祉用具や住宅リフォームの提案を通じて、お客様の暮らしをトータルコーディネートしています。',
+    business: '福祉用具のレンタル・販売、住宅リフォーム。',
+    recruit_faculties: '情報なし',
+    job_description: 'ルート営業',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.yamashita-net.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'sakura-service',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-medical',
+    kana: 'サクラサービス',
+    name: 'サクラサービス株式会社',
+    points: '福祉用具提供と介護リフォーム',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '福祉用具の販売・レンタルと、介護設備のリフォームを通じて、最適な住環境づくりを支援しています。',
+    business: '福祉用具の販売・レンタル、介護リフォーム。',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'http://sakura-service.net/',
+    holidays: '情報なし'
+},
+{
+    id: 'nippon-self-medical',
+    mainCategory: 'welfare-education',
+    subCategory: 'welfare-education-medical',
+    kana: 'ニッポンセルフメディカル',
+    name: '日本セルフメディカル株式会社',
+    points: '家庭用医療機器の販売',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: 'スーパーやショッピングセンター等の催事会場にて、家庭用医療機器のプロモーション・販売を行っています。',
+    business: '家庭用医療機器のプロモーション・販売。',
+    recruit_faculties: '情報なし',
+    job_description: '販売',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.self-medical.com/',
+    holidays: '情報なし'
+}
+        ]
+      },
+      "logistics": {
+        "その他物流": [
+          {
+    id: 'trancom',
+    mainCategory: 'logistics',
+    subCategory: 'logistics-other',
+    kana: 'トランコム',
+    name: 'トランコム株式会社',
+    points: '物流センター運営や輸送マッチング事業',
+    listed: '東証プライム',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '物流センターの構築・運営や、荷物とトラックをマッチングさせる事業などを展開しています。',
+    business: '物流センター構築・運営、輸送マッチング、その他物流関連事業。',
+    recruit_faculties: '情報なし',
+    job_description: '物流センター構築運営、輸送マッチング、営業、管理部門',
+    benefits: '年間休日120日、各種休暇制度、社宅手当',
+    salary: '月給243,000円～（大卒）',
+    homepage: 'https://www.trancom.co.jp/',
+    holidays: '年間休日120日'
+},
+{
+    id: 'asahi-security',
+    mainCategory: 'logistics',
+    subCategory: 'logistics-other',
+    kana: 'アサヒセキュリティ',
+    name: '株式会社アサヒセキュリティ',
+    points: '貴重品運搬警備の専門会社',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '現金や有価証券などの貴重品運搬警備や、金融機関の集配金業務を行っています。',
+    business: '貴重品運搬警備、集配金業務。',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.assjapan.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'heart-moving-center',
+    mainCategory: 'logistics',
+    subCategory: 'logistics-other',
+    kana: 'ハートヒッコシセンター',
+    name: '株式会社ハート引越センター',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '国内・海外引越の事業を中心に、オフィス移転や自動車の陸送なども手掛けています。',
+    business: '引越事業、産業廃棄物収集運搬、古物商。',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.heart333.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'hikkoshi-sha',
+    mainCategory: 'logistics',
+    subCategory: 'logistics-other',
+    kana: 'ヒッコシシャ',
+    name: '株式会社引越社',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '「アリさんマークの引越社」として、個人・法人向けの引越サービスを提供しています。',
+    business: '引越サービス。',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '年間休日120日以上、福利厚生充実、社宅・家賃補助制度',
+    salary: '情報なし',
+    homepage: 'https://www.ari-inc.co.jp/',
+    holidays: '年間休日120日以上'
+},
+{
+    id: 'maruwa-unyu-kikan',
+    mainCategory: 'logistics',
+    subCategory: 'logistics-other',
+    kana: 'マルワウンユキカン',
+    name: '株式会社丸和運輸機関',
+    points: 'EC・食品・医薬物流に強み',
+    listed: '東証プライム',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: 'EC物流、食品物流、医薬物流など、多岐にわたる分野で物流マネジメントを行っています。',
+    business: '物流マネジメント、EC・食品・医薬物流。',
+    recruit_faculties: '情報なし',
+    job_description: '物流マネージャー、情報システム設計',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.maruwanet.co.jp/',
+    holidays: '情報なし'
+}
+        ],
+        "鉄道・航空・海運": [
+          {
+    id: 'kansai-airport-operation-services',
+    mainCategory: 'logistics',
+    subCategory: 'logistics-transport',
+    kana: 'カンサイエアポートオペレーションサービス',
+    name: '関西エアポートオペレーションサービス株式会社',
+    points: '関西国際空港、大阪国際空港、神戸空港を運営',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '関西国際空港、大阪国際空港、神戸空港の運営を担い、旅客サービスや航空機の安全を守る業務を行っています。',
+    business: '空港運営、ターミナルマネジメント、飛行場面点検、航空機給油。',
+    recruit_faculties: '情報なし',
+    job_description: 'ターミナルマネジメント、飛行場面点検、航空機給油',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.kaos.co.jp/',
+    holidays: '情報なし'
+},
+{
+    id: 'kousokudouro-toll-technology',
+    mainCategory: 'logistics',
+    subCategory: 'logistics-transport',
+    kana: 'コウソクドウロトールテクノロジー',
+    name: '高速道路トールテクノロジー株式会社',
+    points: '情報なし',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '情報なし',
+    business: '情報なし',
+    recruit_faculties: '情報なし',
+    job_description: '情報なし',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.toll-tech.co.jp/',
+    holidays: '情報なし'
+},
+// 物流系 -> 鉄道・航空・海運
+{
+    id: 'han-kyu-ferry',
+    mainCategory: 'logistics',
+    subCategory: 'logistics-transport',
+    kana: 'ハンキュウフェリー',
+    name: '阪九フェリー株式会社',
+    points: '新門司港と泉大津港を結ぶフェリーを運航',
+    listed: '情報なし',
+    capital: '情報なし',
+    sales: '情報なし',
+    employees: '情報なし',
+    pr: '北九州（新門司）と大阪（泉大津）を結ぶカーフェリーを運航し、安全・安心な船旅と物流サービスを提供しています。',
+    business: '旅客、貨物フェリーの運航。',
+    recruit_faculties: '情報なし',
+    job_description: '船舶運航管理、旅客サービス、貨物管理',
+    benefits: '情報なし',
+    salary: '情報なし',
+    homepage: 'https://www.han9f.co.jp/',
+    holidays: '情報なし'
+}
+        ]
+      }
+    };
+
+    const mainTabs = document.getElementById("main-tabs");
+    const subTabsContainer = document.getElementById("sub-tabs-container");
+    const contentDiv = document.getElementById("content");
+    const modal = document.getElementById("modal");
+    const blogModal = document.getElementById("blog-modal");
+    const blogContentArea = document.getElementById("blog-content");
+    let currentCompanyData = null;
+
+    // カテゴリーごとの色マッピング
+    const categoryColors = {
+      it: 'bg-red-500',
+      service: 'bg-yellow-500',
+      maker: 'bg-green-500',
+      finance: 'bg-blue-500',
+      construction: 'bg-indigo-500',
+      trading: 'bg-pink-500',
+      hr: 'bg-teal-500',
+      realestate: 'bg-orange-500',
+      welfare: 'bg-cyan-500',
+      logistics: 'bg-lime-500',
+    };
+
+    function displayCompanies(mainCategory, subCategory) {
+      contentDiv.innerHTML = '';
+      const companies = allCompanies[mainCategory][subCategory] || [];
+      const bgColor = categoryColors[mainCategory];
+      companies.forEach(company => {
+        const companyCard = document.createElement("div");
+        companyCard.classList.add("bg-white", "p-4", "rounded-lg", "shadow-md", "mb-4", "cursor-pointer", "hover:shadow-lg", "transition-shadow");
+        
+        let listedClass = '';
+        if (company.listed && company.listed.includes('プライム')) {
+          listedClass = 'listed-prime';
+        } else if (company.listed && company.listed.includes('グロース')) {
+          listedClass = 'listed-growth';
+        } else if (company.listed && company.listed.includes('非公開')) {
+          listedClass = 'listed-private';
+        }
+
+        companyCard.innerHTML = `
+          <h3 class="text-xl font-bold text-gray-800">${company.name}</h3>
+          <p class="text-sm text-gray-500 mb-2">${company.kana}</p>
+          <div class="mt-2 text-sm text-gray-700">
+            <p><span class="font-semibold">【ポイント】</span> ${company.points || '情報なし'}</p>
+            <p><span class="font-semibold">【上場区分】</span> <span class="${listedClass}">${company.listed || '情報なし'}</span></p>
+            <p><span class="font-semibold">【事業内容】</span> ${company.business || '情報なし'}</p>
+          </div>
+        `;
+        companyCard.onclick = () => openModal(company);
+        contentDiv.appendChild(companyCard);
+      });
+    }
+
+    function createMainTab(category, name) {
+      const button = document.createElement("button");
+      button.classList.add("tab-btn", "px-4", "py-2", "rounded-full", categoryColors[category], "hover:opacity-80", "transition-opacity");
+      button.textContent = name;
+      button.dataset.mainCategory = category;
+      button.onclick = () => {
+        document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+        createSubTabs(category);
+      };
+      return button;
+    }
+
+    function createSubTabs(mainCategory) {
+      subTabsContainer.innerHTML = '';
+      contentDiv.innerHTML = '';
+      const subCategories = allCompanies[mainCategory];
+      const categoryKeys = Object.keys(subCategories);
+      if (categoryKeys.length > 0) {
+        categoryKeys.forEach((subCategory, index) => {
+          const button = document.createElement("button");
+          button.classList.add("sub-tab-btn", "px-4", "py-2", "rounded-full", "bg-blue-400", "hover:opacity-80", "transition-opacity");
+          button.textContent = subCategory;
+          button.dataset.subCategory = subCategory;
+          button.onclick = () => {
+            document.querySelectorAll(".sub-tab-btn").forEach(btn => btn.classList.remove("active"));
+            button.classList.add("active");
+            displayCompanies(mainCategory, subCategory);
+          };
+          subTabsContainer.appendChild(button);
+          if (index === 0) {
+            button.classList.add("active");
+            displayCompanies(mainCategory, subCategory);
+          }
+        });
+      }
+    }
+
+    mainTabs.innerHTML = '';
+    Object.entries(allCompanies).forEach(([category, subCategories], index) => {
+      const button = createMainTab(category, Object.keys(allCompanies)[index].name || category); // ダミーデータなのでcategoryをそのまま表示
+      mainTabs.appendChild(button);
+      if (index === 0) {
+        button.classList.add("active");
+        createSubTabs(category);
+      }
+    });
+
+    // Main tabs already have text, no need for the name property.
+    // Let's create the buttons again with proper names.
+    mainTabs.innerHTML = '';
+    const mainCategories = {
+      "it": "IT系",
+      "service": "サービス系",
+      "maker": "メーカー系",
+      "finance": "金融系",
+      "construction": "建設・施工系",
+      "trading": "商社系",
+      "hr": "人材系",
+      "realestate": "不動産",
+      "welfare": "福祉・教育系",
+      "logistics": "物流系"
+    };
+
+    Object.entries(mainCategories).forEach(([category, name]) => {
+      const button = createMainTab(category, name);
+      mainTabs.appendChild(button);
+    });
+    
+    // Initial display
+    document.querySelector('.tab-btn[data-main-category="it"]').click();
+
+
+    function openModal(company) {
+      currentCompanyData = company;
+      document.getElementById("modal-title").textContent = company.name || '';
+      document.getElementById("modal-kana").textContent = company.kana ? `${company.kana}` : '';
+      document.getElementById("modal-points").textContent = company.points || '情報なし';
+      document.getElementById("modal-listed").textContent = company.listed || '情報なし';
+      document.getElementById("modal-capital").textContent = company.capital || '情報なし';
+      document.getElementById("modal-sales").textContent = company.sales || '情報なし';
+      document.getElementById("modal-employees").textContent = company.employees || '情報なし';
+      document.getElementById("modal-pr").textContent = company.pr || '情報なし';
+      document.getElementById("modal-business").textContent = company.business || '情報なし';
+      document.getElementById("modal-recruit-faculties").textContent = company.recruit_faculties || '情報なし';
+      document.getElementById("modal-job-description").textContent = company.job_description || '情報なし';
+      document.getElementById("modal-benefits").textContent = company.benefits || '情報なし';
+      document.getElementById("modal-salary").textContent = company.salary || '情報なし';
+      document.getElementById("modal-homepage").href = company.homepage || '#';
+      document.getElementById("modal-homepage").textContent = company.homepage ? '企業ホームページへ' : '情報なし';
+      document.getElementById("modal-holidays").textContent = company.holidays || '情報なし';
+
+      // 上場区分に応じて色分け
+      const listedSpan = document.getElementById("modal-listed");
+      listedSpan.className = '';
+      if (company.listed && company.listed.includes('プライム')) {
+        listedSpan.classList.add('listed-prime');
+      } else if (company.listed && company.listed.includes('グロース')) {
+        listedSpan.classList.add('listed-growth');
+      } else {
+        listedSpan.classList.add('listed-private');
+      }
+
+      modal.classList.remove("hidden");
+    }
+
+    function closeModal() {
+      modal.classList.add("hidden");
+    }
+
+    // ブログれっしぃぷ機能
+    document.getElementById("blog-receipt-btn").onclick = function() {
+      if (!currentCompanyData) return;
+      const data = currentCompanyData;
+      let blogText = `# ${data.name} (${data.kana || '情報なし'})\n\n`;
+      blogText += `* **ポイント:** ${data.points || '情報なし'}\n`;
+      blogText += `* **上場区分:** ${data.listed || '情報なし'}\n`;
+      blogText += `* **資本金:** ${data.capital || '情報なし'}\n`;
+      blogText += `* **売上高:** ${data.sales || '情報なし'}\n`;
+      blogText += `* **従業員数:** ${data.employees || '情報なし'}\n`;
+      blogText += `* **PR:** ${data.pr || '情報なし'}\n`;
+      blogText += `* **事業内容:** ${data.business || '情報なし'}\n`;
+      blogText += `* **採用対象:** ${data.recruit_faculties || '情報なし'}\n`;
+      blogText += `* **仕事内容:** ${data.job_description || '情報なし'}\n`;
+      blogText += `* **福利厚生:** ${data.benefits || '情報なし'}\n`;
+      blogText += `* **初任給:** ${data.salary || '情報なし'}\n`;
+      blogText += `* **休日・休暇:** ${data.holidays || '情報なし'}\n`;
+      if (data.homepage) {
+        blogText += `* **ホームページ:** ${data.homepage}\n`;
+      }
+      
+      blogContentArea.value = blogText;
+      blogModal.classList.remove("hidden");
+    };
+
+    function closeBlogModal() {
+      blogModal.classList.add("hidden");
+    }
+  </script>
+
+</body>
+</html>
